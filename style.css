@@ -1,0 +1,67 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  height: 70px;
+  width: auto;
+  background-color: pink;
+  overflow: hidden;
+  margin: 0;
+  padding: 10px;
+}
+
+#logo {
+  float: left;
+  margin-right: 10px;
+}
+
+#search {
+  display: inline;
+  margin:10px;
+}
+
+#account {
+  float: right;
+}
+
+nav#portfolios {
+  /*border: 1px solid black;*/
+  background: rgb(200,200,200);
+  width: 140px;
+  float: left;
+  padding: 10px;
+}
+
+nav h2,li,ul,ol {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav#portfolios li {
+  line-height: 160%;
+}
+
+nav#tabs li {
+  display: inline;
+  float: left;
+}
+
+nav#tabs li a {
+  display: block;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: white;
+}
+
+
+article {
+  width: auto;
+  background: green;
+  margin-left: 160px;
+  padding: 10px;
+}
