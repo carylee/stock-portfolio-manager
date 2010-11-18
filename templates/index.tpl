@@ -12,7 +12,7 @@
   <input value="Symbol"></input><input type="Submit" value="Get quote"></input>
 </form>
 <div id="account">
-<a href="#">carylee@gmail.com</a> | <a href="#">Log out</a>
+<a href="#">{$Email}</a> | <a href="#">Log out</a>
 </div>
 </header>
 <nav id="portfolios">

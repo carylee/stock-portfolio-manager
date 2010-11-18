@@ -17,7 +17,7 @@ create TABLE portfolio_portfolios (
   name VARCHAR(32) NOT NULL,
   description VARCHAR(255),
   owner NOT NULL references portfolio_users(email),
-  creation_date number default (SELECT (sysdate - to_date('01-JAN-1970','DD-MON-YYYY')) * (86400) as dt FROM dual) NOT NULL,
+  creation_date number,
   cash_balance number default '0' NOT NULL,
     constraint cash_balance_nonnegative CHECK( cash_balance >=0 )
 );
@@ -35,7 +35,7 @@ create TABLE portfolio_stocksDaily (
 );
 
 create TABLE portfolio_stocks (
-  symbol primary key references stocksDaily(symbol),
+  symbol primary key references portfolio_stocksDaily(symbol),
   shares number default '0' NOT NULL,
   cost_basis number NOT NULL,
   holder number references portfolio_portfolios(id)
