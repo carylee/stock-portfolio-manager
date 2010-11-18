@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<link rel="stylesheet" href="style.css" />
-<title>{$Title}</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css" />
+  <link href='http://fonts.googleapis.com/css?family=Vollkorn&subset=latin' rel='stylesheet' type='text/css'>
+  <title>{$Title}</title>
+  <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script src="scripts.js"></script>
 </head>
 <body>
 <header>

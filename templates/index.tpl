@@ -1,7 +1,7 @@
 {include 'header.tpl' title="Index" Email=$Email}
 {include 'sidebar.tpl' links=$portfolios}
-<article>
 {include 'tabs.tpl'}
+<article>
 <br />
 This is my article!
 <br/>

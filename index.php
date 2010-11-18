@@ -23,6 +23,10 @@ switch ($page ) {
     $smarty->display('stock.tpl');*/
     break;
 
+  case 'overview':
+    overviewPage();
+    break;
+
   default:
     $smarty = new Smarty;
     $smarty->assign('Email', 'carylee@gmail.com');
@@ -44,6 +48,18 @@ function stockPage() {
   //$stock = array('name'=>'AAPL', 'high'=>230, 'low'=>20, 'close'=>42, 'open'=> 53 );
   $smarty->assign('stock', $stock);
   $smarty->display('stock.tpl');
+}
+
+function overviewPage() {
+  $smarty = new Smarty;
+  $F = array('symbol'=>'F','pmv'=>16.51,'volatility'=>'0.53','correlation'=>'42.2','open'=>16.75,'high'=>16.90,'low'=>16.52);
+  $LUV = array('symbol'=>'LUV','pmv'=>18.01,'volatility'=>'3.51','correlation'=>'41.2','open'=>1.75,'high'=>1.90,'low'=>19.28);
+  $SBUX = array('symbol'=>'SBUX','pmv'=>42.51,'volatility'=>'0.33','correlation'=>'32.1','open'=>49.75,'high'=>61.90,'low'=>14.02);
+
+  $smarty->assign('Email', 'carylee@gmail.com');
+  $smarty->assign('portfolios', array( array('href'=>'#','name'=>'Portfolio 1') ) );
+  $smarty->assign('stocks', array($F,$LUV,$SBUX));
+  $smarty->display('overview.tpl');
 }
 
 ?>
