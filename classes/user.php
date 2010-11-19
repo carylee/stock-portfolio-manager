@@ -54,5 +54,17 @@ Class User {
     }
     return $this->authenticate();
   }
+  public function register($name, $email, $password) {
+    global $ORACLE;
+    $this->email = $email;
+    $this->password = $this->securePassword($password);
+    $stid = oci_parse($ORACLE, 'INSERT INTO portfolio_users (name,email,password) VALUES(:name, :email, :password)');
+    oci_bind_by_name($stid, ':name', $name);
+    oci_bind_by_name($stid, ':email', $this->email);
+    oci_bind_by_name($stid, ':password', $this->password);
+    $r = oci_execute($stid);
+    $this->remember();
+    return $r;
+  }
 }
 ?>

@@ -48,6 +48,10 @@ switch ($action) {
     $page = 'login';
     break;
   case 'register': // submitting a registration form
+    if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['password'])) {
+      $user->register($_POST['name'], $_POST['email'], $_POST['password']);
+    }
+    $page = 'overview';
     break;
 }
 
