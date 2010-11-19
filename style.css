@@ -99,3 +99,19 @@ article {
   background-position: center center;
   background-repeat: no-repeat;
 }
+
+form.login fieldset {
+  text-align: right;
+}
+
+form.login {
+  float: left;
+  width: 250px;
+  margin-right: 20px;
+  background: rgba(255,225,255,0.3);
+}
+form.login input {
+}
+form.login label {
+  width: 150px;
+}

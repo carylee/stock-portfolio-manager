@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="style.css" />
   <link href='http://fonts.googleapis.com/css?family=Vollkorn&subset=latin' rel='stylesheet' type='text/css'>
-  <title>{$Title}</title>
+  <title>Portfolio</title>
   <script type='text/javascript' src='https://www.google.com/jsapi'></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
   <script src="scripts.js"></script>
@@ -18,7 +18,11 @@
   <input type="Submit" value="Get quote"></input>
 </form>
 <div id="account">
-<a href="index.php?p=account">{$Email}</a> | <a href="#">Log out</a>
+{if isset($Email)}
+<a href="index.php?p=account">{$Email}</a> | <a href="?p=logout">Log out</a>
+{else}
+<a href="index.php?p=login">Log in</a>
+{/if}
 </div>
 </header>
 

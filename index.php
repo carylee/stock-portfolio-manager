@@ -26,6 +26,10 @@ switch ($page ) {
     performancePage();
     break;
 
+  case 'login':
+    loginPage();
+    break;
+
   case 'trade':
     tradePage();
     break;
@@ -99,4 +103,12 @@ function transactionsPage() {
   $smarty->assign('portfolios', $portfolios );
   $smarty->display('transactions.tpl');
 }
+
+function loginPage() {
+  //$portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
+  $smarty = new Smarty;
+  //$smarty->assign('portfolios', $portfolios );
+  $smarty->display('login.tpl');
+}
+
 ?>
