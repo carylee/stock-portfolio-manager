@@ -4,7 +4,7 @@
 <article>
 <h1>Log in</h1>
 <p>You must be logged in to manage your portfolio. Log in or register below.</p>
-<form class="login" method="POST">
+<form class="login" method="POST" action="index.php?p=overview">
 <fieldset>
   <h2>Log in</h2>
   <label for="email">Email</label><input type="email" name="email" id="email" /><br/>
@@ -13,7 +13,7 @@
   <input type="submit" name="submit" value="Log in" />
 </fieldset>
 </form>
-<form class="login" method="POST">
+<form class="login" method="POST" action="index.php?p=overview">
 <fieldset>
   <h2>Register</h2>
   <label for="name">Name</label><input type="text" name="name" id="name" /><br/>

@@ -19,7 +19,7 @@
 </form>
 <div id="account">
 {if isset($user)}
-<a href="index.php?p=account">{$user->email}</a> | <a href="?p=login&a=logout">Log out</a>
+<a href="index.php?p=account">{$user->email}</a> | <a href="?p=overview&a=logout">Log out</a>
 {else}
 <a href="index.php?p=login">Log in</a>
 {/if}

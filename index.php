@@ -42,6 +42,8 @@ switch ($action) {
     if(isset($_POST['email']) && isset($_POST['password'])) {
       $user->login( $_POST['email'], $_POST['password'] );
     }
+    $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?p=overview";
+    header("Location: " . $url);
     break;
   case 'logout': // The user is logging out
     $user->logout();
