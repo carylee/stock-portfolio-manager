@@ -1,18 +1,56 @@
 <?php
+// Start the session
+session_start();
+
+// Print PHP errors
 ini_set('display_errors', 1); 
 ini_set('log_errors', 1); 
 ini_set('error_log', dirname(__FILE__) . '/error_log.txt'); 
 error_reporting(E_ALL);
-require('libs/Smarty.class.php');
-require_once('classes/stock.php');
 
-$page = '';
+// Use the Smarty templating engine (http://www.smarty.net/)
+require('libs/Smarty.class.php');
+
+// Include the classes used
+require_once('classes/stock.php');
+require_once('classes/user.php');
+
+$page = ''; // the page the user is trying to access
+$action = ''; // any action the user is trying to perform
+
+// Fetch the users GET and POST requests
+if(isset($_POST['a'])) {
+  $action = $_POST['a'];
+}
+if(isset($_GET['a'])) {
+  $action = $_GET['a'];
+}
 
 if(isset($_GET['p'])) {
   $page = $_GET['p'];
 }
 
+// Instantiate a user object
+$user = new User();
+if( !$user->loggedIn() ) {
+  $page = 'login'; // send them to the login page
+}
 
+// See what action the user is trying to perform and respond accordingly
+switch ($action) {
+  case 'login': // The user is logging in (submitting a login form)
+    if(isset($_POST['email']) && isset($_POST['password'])) {
+      $user->login( $_POST['email'], $_POST['password'] );
+    }
+    break;
+  case 'logout': // The user is logging out
+    $user->logout();
+    break;
+  case 'register': // submitting a registration form
+    break;
+}
+
+// See what page the user is trying to access and display it
 switch ($page ) {
   case 'stock':
     stockPage();
