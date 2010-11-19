@@ -1,4 +1,5 @@
 <?php
+require_once('includes/db.php');
 
 Class User {
   public function __construct() {
@@ -18,17 +19,27 @@ Class User {
     $this->remember();
   }
 
-  private function securePassword($password) {
+  public function securePassword($password) {
     $salt = "db9d3a016@$%H1*#098o";
-    return = str_replace(",", '', hash("sha256", $password . $salt));
+    return str_replace(",", '', hash("sha256", $password . $salt));
   }
 
   private function authenticate() {
-    if( $this->email && $this->password ) {
+    $authenticated = FALSE;
+    if( isset($this->email) && isset($this->password) ) {
       // perform sql query to check if user exists
-      $this->authenticated = TRUE;
-      return rand(0,1);
+      global $ORACLE;
+      $stid = oci_parse($ORACLE, 'SELECT count(*) FROM portfolio_users WHERE email=:email AND password=:password');
+      oci_bind_by_name($stid, ':email', $this->email);
+      oci_bind_by_name($stid, ':password', $this->password);
+      $r = oci_execute($stid);
+      $row = oci_fetch_array($stid, OCI_NUM);
+      if( $row[0] ) {
+        $authenticated = TRUE;
+        $this->authenticated = TRUE;
+      }
     }
+    return $authenticated;
   }
 
   private function remember() {

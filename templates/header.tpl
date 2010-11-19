@@ -18,8 +18,8 @@
   <input type="Submit" value="Get quote"></input>
 </form>
 <div id="account">
-{if isset($Email)}
-<a href="index.php?p=account">{$Email}</a> | <a href="?p=logout">Log out</a>
+{if isset($user)}
+<a href="index.php?p=account">{$user->email}</a> | <a href="?p=login&a=logout">Log out</a>
 {else}
 <a href="index.php?p=login">Log in</a>
 {/if}

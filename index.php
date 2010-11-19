@@ -45,6 +45,7 @@ switch ($action) {
     break;
   case 'logout': // The user is logging out
     $user->logout();
+    $page = 'login';
     break;
   case 'register': // submitting a registration form
     break;
@@ -78,7 +79,8 @@ switch ($page ) {
 
   default:
     $smarty = new Smarty;
-    $smarty->assign('Email', 'carylee@gmail.com');
+    global $user;
+    $smarty->assign('user', $user);
     $smarty->assign('portfolios', array( array('href'=>'#','name'=>'Portfolio 1') ) );
     $smarty->display('index.tpl');
     break;
@@ -86,7 +88,7 @@ switch ($page ) {
 
 function stockPage() {
   $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  $email = "carylee@gmail.com";
+  global $user;
   $smarty = new Smarty;
   $symbol = 'AAPL';
   if(isset($_GET['stock'])) {
@@ -94,7 +96,8 @@ function stockPage() {
   }
   $stock = new Stock($symbol);
   $stock->getQuote();
-  $smarty->assign('Email', $email);
+  $smarty->assign('user', $user);
+  //$smarty->assign('Email', $user->email);
   $smarty->assign('portfolios', $portfolios);
   //$stock = array('name'=>'AAPL', 'high'=>230, 'low'=>20, 'close'=>42, 'open'=> 53 );
   $smarty->assign('stock', $stock);
@@ -103,13 +106,13 @@ function stockPage() {
 
 function overviewPage() {
   $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  $email = "carylee@gmail.com";
+  global $user;
   $smarty = new Smarty;
   $F = array('symbol'=>'F','pmv'=>16.51,'volatility'=>'0.53','correlation'=>'42.2','open'=>16.75,'high'=>16.90,'low'=>16.52);
   $LUV = array('symbol'=>'LUV','pmv'=>18.01,'volatility'=>'3.51','correlation'=>'41.2','open'=>1.75,'high'=>1.90,'low'=>19.28);
   $SBUX = array('symbol'=>'SBUX','pmv'=>42.51,'volatility'=>'0.33','correlation'=>'32.1','open'=>49.75,'high'=>61.90,'low'=>14.02);
 
-  $smarty->assign('Email', $email);
+  $smarty->assign('user', $user);
   $smarty->assign('portfolios', $portfolios );
   $smarty->assign('stocks', array($F,$LUV,$SBUX));
   $smarty->display('overview.tpl');
@@ -117,36 +120,35 @@ function overviewPage() {
 
 function performancePage() {
   $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  $email = "carylee@gmail.com";
   $smarty = new Smarty;
-  $smarty->assign('Email', $email);
+  global $user;
+  $smarty->assign('user', $user);
   $smarty->assign('portfolios', $portfolios );
   $smarty->display('performance.tpl');
 }
 
 function tradePage() {
   $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  $email = "carylee@gmail.com";
   $smarty = new Smarty;
-  $smarty->assign('Email', $email);
+  global $user;
+  $smarty->assign('user', $user);
   $smarty->assign('portfolios', $portfolios );
   $smarty->display('trade.tpl');
 }
 
 function transactionsPage() {
   $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  $email = "carylee@gmail.com";
+  global $user;
   $smarty = new Smarty;
-  $smarty->assign('Email', $email);
+  $smarty->assign('user', $user);
   $smarty->assign('portfolios', $portfolios );
   $smarty->display('transactions.tpl');
 }
 
 function loginPage() {
-  //$portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
   $smarty = new Smarty;
-  //$smarty->assign('portfolios', $portfolios );
   $smarty->display('login.tpl');
 }
 
+oci_close($ORACLE);
 ?>

@@ -1,4 +1,4 @@
-{include 'header.tpl' title="Index" Email=$Email}
+{include 'header.tpl' title="Index"}
 {include 'sidebar.tpl' links=$portfolios}
 {include 'tabs.tpl'}
 <article>

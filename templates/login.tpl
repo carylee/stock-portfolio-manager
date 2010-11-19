@@ -9,6 +9,7 @@
   <h2>Log in</h2>
   <label for="email">Email</label><input type="email" name="email" id="email" /><br/>
   <label for="password">Password</label><input type="password" name="password" id="password" /><br/>
+  <input type="hidden" name="a" value="login" />
   <input type="submit" name="submit" value="Log in" />
 </fieldset>
 </form>
@@ -18,6 +19,7 @@
   <label for="name">Name</label><input type="text" name="name" id="name" /><br/>
   <label for="email">Email</label><input type="email" name="email" id="email" /><br/>
   <label for="password">Password</label><input type="password" name="password" id="password" /><br/>
+  <input type="hidden" name="a" value="register" />
   <input type="submit" name="submit" value="Register" />
 </fieldset>
 </form>
