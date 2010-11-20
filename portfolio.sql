@@ -47,5 +47,8 @@ insert into portfolio_users (email, password, name) VALUES ('tepeacock@gmail.com
 insert into portfolio_users (email, password, name) VALUES ('admin@localhost.com', 'mypasswd', 'Some Administrator');
 insert into portfolio_users (email, password, name) VALUES ('clarkefreak@gmail.com', 'istbnt2tb2nw', 'Nathan Ritter');
 insert into portfolio_portfolios (id, name, description, owner) VALUES (portfolio_ids.nextval, 'Practice', 'description', 'carylee@gmail.com');
+insert into portfolio_portfolios (id, name, description, owner) VALUES (portfolio_ids.nextval, 'Actual', 'The stocks I actually own', 'carylee@gmail.com');
+insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('SBUX', '100', '28.01', (SELECT id FROM portfolio_portfolios WHERE name='Practice' and owner='carylee@gmail.com'));
+insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('MSFT', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Practice' and owner='carylee@gmail.com'));
 
 quit;

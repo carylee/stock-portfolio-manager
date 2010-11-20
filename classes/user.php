@@ -8,6 +8,10 @@ Class User {
     $this->db = $ORACLE;
   }
 
+  private function init() {
+    $this->getPortfolios();
+  }
+
   public function logout() {
     unset($_SESSION['email']);
     unset($_SESSION['password']);
@@ -38,9 +42,25 @@ Class User {
       if( $row[0] ) {
         $authenticated = TRUE;
         $this->authenticated = TRUE;
+        $this->init();
       }
     }
     return $authenticated;
+  }
+
+  public function getPortfolios() {
+    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE owner=:email');
+    oci_bind_by_name($stid, ':email', $this->email);
+    $r = oci_execute($stid);
+    $portfolios = array();
+    while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
+      $portfolio = new Portfolio();
+      $portfolio->fromRow($row);
+      $portfolios[] = $portfolio;
+    }
+    oci_free_statement($stid);
+    $this->portfolios = $portfolios;
+    return $portfolios;
   }
 
   private function remember() {

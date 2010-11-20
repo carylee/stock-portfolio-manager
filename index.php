@@ -14,6 +14,10 @@ require('libs/Smarty.class.php');
 // Include the classes used
 require_once('classes/stock.php');
 require_once('classes/user.php');
+require_once('classes/portfolio.php');
+
+/*$p = new Portfolio;
+print_r($p->getByUser('carylee@gmail.com'));*/
 
 $page = ''; // the page the user is trying to access
 $action = ''; // any action the user is trying to perform
@@ -35,6 +39,8 @@ $user = new User();
 if( !$user->loggedIn() ) {
   $page = 'login'; // send them to the login page
 }
+$portfolios = $user->getPortfolios();
+//print_r($portfolios);
 
 // See what action the user is trying to perform and respond accordingly
 switch ($action) {
@@ -54,6 +60,8 @@ switch ($action) {
       $user->register($_POST['name'], $_POST['email'], $_POST['password']);
     }
     $page = 'overview';
+    $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?p=overview";
+    header("Location: " . $url);
     break;
 }
 
