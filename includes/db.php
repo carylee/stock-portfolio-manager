@@ -9,4 +9,5 @@ $ORACLE=oci_connect($dbuser, $dbpassword);
 if (!$ORACLE) {
   die("Failed to connect to Oracle database");
  }
+define("BASEURL", "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
 ?>
