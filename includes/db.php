@@ -9,4 +9,9 @@ $ORACLE=oci_connect($dbuser, $dbpassword);
 if (!$ORACLE) {
   die("Failed to connect to Oracle database");
  }
+
+$msqluser = "cs339";
+$msqlpass = "cs339";
+mysql_connect("localhost", $msqluser, $msqlpass);
+mysql_select_db("StocksDaily") or die (mysql_error());
 ?>
