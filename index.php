@@ -47,7 +47,11 @@ if( !$user->loggedIn() ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
-//$portfolios[0]->getStocks();
+$stocks = $portfolios[1]->getStocks();
+pr($stocks[0]);
+pr($stocks[0]->getStats());
+
+//print_r($portfolios[0]->covCorMatrix( array('AAPL', "MSFT") ));
 
 // See what action the user is trying to perform and respond accordingly
 switch ($action) {
