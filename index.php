@@ -16,6 +16,13 @@ require_once('classes/stock.php');
 require_once('classes/user.php');
 require_once('classes/portfolio.php');
 
+// Funciton for debugging:
+function pr($data){
+  echo "<pre>";
+  print_r($data);
+  echo "</pre>";
+}
+
 /*$p = new Portfolio;
 print_r($p->getByUser('carylee@gmail.com'));*/
 
@@ -82,6 +89,23 @@ switch ($action) {
     $url = BASEURL . "?p=edit-portfolios";
     header("Location: $url");
     break;
+
+  case 'buy':
+    pr($_POST);
+    break;
+
+  case 'sell':
+    pr($_POST);
+    break;
+
+  case 'deposit':
+    pr($_POST);
+    break;
+
+  case 'withdraw':
+    pr($_POST);
+    break;
+
 }
 
 // See what page the user is trying to access and display it
@@ -142,8 +166,10 @@ function overviewPage($user) {
     $id = $user->portfolios[0]->id;
   }
   $smarty = new Smarty;
+  $portfolio = $user->portfolio($id);
   $smarty->assign('user', $user);
-  $smarty->assign('stocks', $user->portfolio($id)->stocks);
+  $smarty->assign('portfolio', $portfolio);
+  $smarty->assign('stocks', $portfolio->stocks);
   $smarty->display('overview.tpl');
 }
 

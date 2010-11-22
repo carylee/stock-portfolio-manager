@@ -16,3 +16,17 @@ function drawTimeline() {
       });
   }
 }
+
+$(document).ready(function(){
+  $('#transaction-type').change( function(){
+    if( this.value == 'sell' || this.value == 'buy' ) {
+      //$('#quantity-label').html('Shares');
+      $('.stock-transaction').show();
+      $('.cash-transaction').hide()
+    }
+    else {
+      $('.stock-transaction').hide();
+      $('.cash-transaction').show();
+    }
+    });
+});

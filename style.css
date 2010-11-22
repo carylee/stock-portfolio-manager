@@ -119,3 +119,20 @@ form.login input {
 form.login label {
   width: 150px;
 }
+
+fieldset.cash-transaction { 
+  display: none;
+}
+
+form#overview-transaction {
+  width: 260px;
+}
+fieldset.transaction {
+  text-align: right;
+}
+#overview-transaction label {
+  width: 220px;
+  margin-right: 20px;
+  display: inline;
+  text-align: right;
+}
