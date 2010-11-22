@@ -5,7 +5,7 @@
       {foreach $user->portfolios as $portfolio}
         <li><a href="index.php?p=overview&id={$portfolio->id}">{$portfolio->name}</a></li>
       {/foreach}
-      <li><a href="#">Edit...</a></li>
+      <li><a href="index.php?p=edit-portfolios">Edit...</a></li>
     {/if}
   </ul>
 </nav>

@@ -7,6 +7,10 @@ html, body {
   background: rgb(190,190,220);
 }
 
+header,nav,article {
+  display: block;
+}
+
 header {
   height: 70px;
   width: auto;
@@ -31,7 +35,7 @@ header {
 
 #search input {
   height: 30px;
-  width: 80px;
+  width: 120px;
   font-size: 120%;
 }
 

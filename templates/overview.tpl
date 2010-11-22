@@ -15,13 +15,7 @@
 </tr>
 {foreach $stocks as $stock}
 <tr>
-  <td><a href="index.php?p=stock&stock={$stock['symbol']}">{$stock['symbol']}</a></td>
-  <td>{$stock['pmv']}</td>
-  <td>{$stock['volatility']}</td>
-  <td>{$stock['correlation']}</td>
-  <td>{$stock['open']}</td>
-  <td>{$stock['high']}</td>
-  <td>{$stock['low']}</td>
+  <td><a href="index.php?p=stock&stock={$stock->symbol}">{$stock->symbol}</a></td>
 </tr>
 {/foreach}
 </table>

@@ -40,7 +40,7 @@ if( !$user->loggedIn() ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
-//print_r($portfolios);
+//$portfolios[0]->getStocks();
 
 // See what action the user is trying to perform and respond accordingly
 switch ($action) {
@@ -48,7 +48,7 @@ switch ($action) {
     if(isset($_POST['email']) && isset($_POST['password'])) {
       $user->login( $_POST['email'], $_POST['password'] );
     }
-    $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?p=overview";
+    $url = BASEURL . "?p=overview";
     header("Location: " . $url);
     break;
   case 'logout': // The user is logging out
@@ -60,23 +60,46 @@ switch ($action) {
       $user->register($_POST['name'], $_POST['email'], $_POST['password']);
     }
     $page = 'overview';
-    $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?p=overview";
+    //$url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?p=overview";
+    $url = BASEURL . "?p=edit-portfolios";
     header("Location: " . $url);
+    break;
+
+  case 'delete-portfolio':
+    if(isset($_GET['id']) && $user->ownsPortfolio($_GET['id'])) {
+      $user->portfolio($_GET['id'])->delete();
+    }
+    break;
+
+  case 'create-portfolio':
+    if(isset($_POST['name']) && isset($_POST['description'])) {
+      $deposit = 0;
+      if(isset($_POST['deposit'])) {
+        $deposit = $_POST['deposit'];
+      }
+      $user->createPortfolio($_POST['name'],$_POST['description'], $deposit);
+    }
+    $url = BASEURL . "?p=edit-portfolios";
+    header("Location: $url");
     break;
 }
 
 // See what page the user is trying to access and display it
 switch ($page ) {
   case 'stock':
-    stockPage();
+    stockPage($user);
     break;
 
   case 'overview':
-    overviewPage();
+    overviewPage($user);
     break;
 
   case 'performance':
-    performancePage();
+    performancePage($user);
+    break;
+
+  case 'edit-portfolios':
+    edit_portfoliosPage($user);
     break;
 
   case 'login':
@@ -84,25 +107,22 @@ switch ($page ) {
     break;
 
   case 'trade':
-    tradePage();
+    tradePage($user);
     break;
 
   case 'transactions':
-    transactionsPage();
+    transactionsPage($user);
     break;
 
   default:
     $smarty = new Smarty;
-    global $user;
     $smarty->assign('user', $user);
     $smarty->assign('portfolios', array( array('href'=>'#','name'=>'Portfolio 1') ) );
     $smarty->display('index.tpl');
     break;
 }
 
-function stockPage() {
-  $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  global $user;
+function stockPage($user) {
   $smarty = new Smarty;
   $symbol = 'AAPL';
   if(isset($_GET['stock'])) {
@@ -111,57 +131,49 @@ function stockPage() {
   $stock = new Stock($symbol);
   $stock->getQuote();
   $smarty->assign('user', $user);
-  //$smarty->assign('Email', $user->email);
-  $smarty->assign('portfolios', $portfolios);
-  //$stock = array('name'=>'AAPL', 'high'=>230, 'low'=>20, 'close'=>42, 'open'=> 53 );
   $smarty->assign('stock', $stock);
   $smarty->display('stock.tpl');
 }
 
-function overviewPage() {
-  $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  global $user;
+function overviewPage($user) {
+  if(isset($_GET['id'])) {
+    $id = $_GET['id'];
+  } else {
+    $id = $user->portfolios[0]->id;
+  }
   $smarty = new Smarty;
-  $F = array('symbol'=>'F','pmv'=>16.51,'volatility'=>'0.53','correlation'=>'42.2','open'=>16.75,'high'=>16.90,'low'=>16.52);
-  $LUV = array('symbol'=>'LUV','pmv'=>18.01,'volatility'=>'3.51','correlation'=>'41.2','open'=>1.75,'high'=>1.90,'low'=>19.28);
-  $SBUX = array('symbol'=>'SBUX','pmv'=>42.51,'volatility'=>'0.33','correlation'=>'32.1','open'=>49.75,'high'=>61.90,'low'=>14.02);
-
   $smarty->assign('user', $user);
-  $smarty->assign('portfolios', $portfolios );
-  $smarty->assign('stocks', array($F,$LUV,$SBUX));
+  $smarty->assign('stocks', $user->portfolio($id)->stocks);
   $smarty->display('overview.tpl');
 }
 
-function performancePage() {
-  $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
+function performancePage($user) {
   $smarty = new Smarty;
-  global $user;
   $smarty->assign('user', $user);
-  $smarty->assign('portfolios', $portfolios );
   $smarty->display('performance.tpl');
 }
 
-function tradePage() {
-  $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
+function tradePage($user) {
   $smarty = new Smarty;
-  global $user;
   $smarty->assign('user', $user);
-  $smarty->assign('portfolios', $portfolios );
   $smarty->display('trade.tpl');
 }
 
-function transactionsPage() {
-  $portfolios = array( array('id'=>1,'name'=>'Portfolio 1') );
-  global $user;
+function transactionsPage($user) {
   $smarty = new Smarty;
   $smarty->assign('user', $user);
-  $smarty->assign('portfolios', $portfolios );
   $smarty->display('transactions.tpl');
 }
 
 function loginPage() {
   $smarty = new Smarty;
   $smarty->display('login.tpl');
+}
+
+function edit_portfoliosPage($user) {
+  $smarty = new Smarty;
+  $smarty->assign('user', $user);
+  $smarty->display('edit-portfolios.tpl');
 }
 
 oci_close($ORACLE);

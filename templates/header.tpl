@@ -15,7 +15,7 @@
 <form id="search" action="index.php" method="GET">
   <input value="Symbol" name="stock"></input>
   <input type="hidden" name="p" value="stock" />
-  <input type="Submit" value="Get quote"></input>
+  <input id="getQuote" type="Submit" value="Get quote"></input>
 </form>
 <div id="account">
 {if isset($user)}

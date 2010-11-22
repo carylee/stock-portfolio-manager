@@ -63,6 +63,19 @@ Class User {
     return $portfolios;
   }
 
+  public function portfolio($id) {
+    foreach( $this->portfolios as $portfolio ) {
+      if($portfolio->id == $id) {
+        return $portfolio;
+      }
+    }
+    return FALSE;
+  }
+
+  public function ownsPortfolio($id) {
+    return $this->portfolio($id);
+  }
+
   private function remember() {
     $_SESSION['email'] = $this->email;
     $_SESSION['password'] = $this->password;
@@ -85,6 +98,10 @@ Class User {
     $r = oci_execute($stid);
     $this->remember();
     return $r;
+  }
+  public function createPortfolio($name, $description, $initial_deposit) {
+    $portfolio = new Portfolio;
+    $portfolio->create($this->email,$name,$description,$initial_deposit);
   }
 }
 ?>
