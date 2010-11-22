@@ -133,6 +133,41 @@ Class Portfolio {
       }
     }
   }
+
+  public function buyStock( $symbol, $shares, $date=NULL, $cost=NULL ) {
+   
+  }
+
+  public function sellStock( $symbol, $shares, $date=NULL, $cost=NULL ) {
+
+  }
+
+  public function cashTransaction($amount, $type) {
+    switch($type) {
+      case 'DEPOSIT':
+        $stid = oci_parse($this->db, 'UPDATE portfolio_portfolios SET cash_balance=(cash_balance + :amount) WHERE id=:id');
+        break;
+      case 'WITHDRAW':
+        $stid = oci_parse($this->db, 'UPDATE portfolio_portfolios SET cash_balance=(cash_balance - :amount) WHERE id=:id');
+        break;
+    }
+    oci_bind_by_name($stid, ':amount', $amount);
+    oci_bind_by_name($stid, ':id', $this->id);
+    $r = oci_execute($stid);
+    oci_free_statement($stid);
+    return $r;
+  }
+
+
+  public function deposit( $amount ) {
+    $this->cashTransaction($amount, 'DEPOSIT');
+  }
+
+  public function withdraw( $amount ) {
+    $this->cashTransaction($amount, 'DEPOSIT');
+
+  }
+
 }
 
 ?>

@@ -46,7 +46,7 @@ if( !$user->loggedIn() ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
-$stocks = $portfolios[1]->getStocks();
+///$stocks = $portfolios[1]->getStocks();
 //pr($stocks[0]);
 //pr($stocks[0]->getStats());
 
@@ -101,11 +101,11 @@ switch ($action) {
     break;
 
   case 'deposit':
-    pr($_POST);
+    initCashTransaction($_POST, 'DEPOSIT', $user);
     break;
 
   case 'withdraw':
-    pr($_POST);
+    initCashTransaction($_POST, 'WITHDRAW', $user);
     break;
 
 }
@@ -203,6 +203,19 @@ function edit_portfoliosPage($user) {
   $smarty->assign('user', $user);
   $smarty->display('edit-portfolios.tpl');
 }
+
+function initCashTransaction($postvars, $type, $user) {
+  if(isset($postvars['amount']) && isset($postvars['portfolio'])) {
+    $id = $postvars['portfolio'];
+    $amount = $postvars['amount'];
+    $portfolio = $user->portfolio($id);
+    if($portfolio) {
+      $portfolio->cashTransaction( $amount, $type );
+      header('Location: ' . BASEURL . "?p=overview&id=$id");
+    }
+  }
+}
+ 
 
 oci_close($ORACLE);
 ?>
