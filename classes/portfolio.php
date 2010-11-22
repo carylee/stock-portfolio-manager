@@ -69,6 +69,11 @@ Class Portfolio {
     return $r;
   }
 
+  public function covCorMatrix($symbols, ) {
+	return -1;
+  }
+    
+
 }
 
 ?>

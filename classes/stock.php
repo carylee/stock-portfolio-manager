@@ -13,7 +13,7 @@ class Stock {
     if(!isset($this->name)) $this->name = str_replace('"', '', $name);
   }
 
-<<<<<<< HEAD:classes/stock.php
+
   public function getStats($args) {
     
     $field = 'close';
@@ -56,7 +56,9 @@ class Stock {
     
     return $ret;
 
-=======
+
+  }
+
   public function fromRow($row) {
     // Initializes the stock values from a database query row
     $this->symbol = $row['SYMBOL'];
@@ -65,5 +67,4 @@ class Stock {
     $this->holder = $row['HOLDER'];
   }
 }
->>>>>>> 9f909cc645b18d3437fda9c11a513a784a986b84:classes/stock.php
 ?>
