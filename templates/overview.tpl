@@ -2,20 +2,30 @@
 {include 'sidebar.tpl' links=$portfolios}
 {include 'tabs.tpl'}
 <article>
-<h1>Overview</h1>
-<table>
+<h1>{$portfolio->name}</h1>
+<table class='stock-data'>
 <tr>
   <th>Symbol</th>
+  <th>Shares</th>
   <th>Present Market Value</th>
   <th>Volatility</th>
   <th>Correlation</th>
   <th>Open</th>
+  <th>Close</th>
   <th>High</th>
   <th>Low</th>
 </tr>
 {foreach $stocks as $stock}
 <tr>
   <td><a href="index.php?p=stock&stock={$stock->symbol}">{$stock->symbol}</a></td>
+  <td>{$stock->shares}</td>
+  <td>${$stock->pmv|number_format:2:".":","}</td>
+  <td>{$stock->shares}</td>
+  <td>{$stock->stats['cov']|string_format:"%.2f"}</td>
+  <td>{$stock->open}</td>
+  <td>{$stock->close}</td>
+  <td>{$stock->high}</td>
+  <td>{$stock->low}</td>
 </tr>
 {/foreach}
 <tr>

@@ -56,10 +56,10 @@ insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('SBUX'
 insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('MSFT', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Practice' and owner='carylee@gmail.com'));
 insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('F', '100', '28.01', (SELECT id FROM portfolio_portfolios WHERE name='Actual' and owner='carylee@gmail.com'));
 insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('CSCO', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Actual' and owner='carylee@gmail.com'));
-insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('PALM', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Actual' and owner='carylee@gmail.com'));
+insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('K', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Actual' and owner='carylee@gmail.com'));
 insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('LUV', '100', '28.01', (SELECT id FROM portfolio_portfolios WHERE name='Marshmallows' and owner='mcgough.david@gmail.com'));
 insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('F', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Marshmallows' and owner='mcgough.david@gmail.com'));
-insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('PALM', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Relish' and owner='mcgough.david@gmail.com'));
+insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('K', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Relish' and owner='mcgough.david@gmail.com'));
 insert into portfolio_stocks (symbol, shares, cost_basis, holder) VALUES ('CSCO', '200', '142.58', (SELECT id FROM portfolio_portfolios WHERE name='Relish' and owner='mcgough.david@gmail.com'));
 
 quit;

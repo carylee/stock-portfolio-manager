@@ -1,6 +1,7 @@
 <?php
 /*
  * Taken from http://php.net/manual/en/function.json-encode.php
+// php 5.3 supports a native form of this
  */
 function __json_encode( $data ) {       
   if( is_array($data) || is_object($data) ) {

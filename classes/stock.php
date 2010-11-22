@@ -1,5 +1,6 @@
 <?php
 require_once('includes/db.php');
+require_once('includes/csv_explode.php');
 
 class Stock {
   public function __construct($symbol=FALSE) {
@@ -8,14 +9,52 @@ class Stock {
     }
   }
 
+  public function init() {
+    $this->getStats();
+    $this->getQuote();
+    $this->getPmv();
+  }
+
+  private function getPmv() {
+    if( isset($this->shares) && isset($this->close) ) {
+      $this->pmv = $this->shares * $this->close;
+    }
+  }
+
+
+  private function extractQuoteData($quote) {
+    // I don't think we're actually using this
+    $matches = array();
+    if(count($quote) < 8 ) {
+      return false;
+    }
+    preg_match('/[\d\/]+/', $quote[2], $matches['date']);
+    preg_match('/[\d.:]+/', $quote[3], $matches['time']); //time 
+    preg_match('/[\d.:]+/', $quote[4], $matches['high']); // high
+    preg_match('/[\d.:]+/', $quote[5], $matches['low']); // low
+    preg_match('/[\d.:]+/', $quote[6], $matches['close']); // close
+    preg_match('/[\d.:]+/', $quote[7], $matches['open']); // open
+    preg_match('/[\d.:]+/', $quote[8], $matches['volume']); // volume
+    $date = @$matches['date'][0];
+    $time = @$matches['time'][0];
+    $high = @$matches['high'][0];
+    $low = @$matches['low'][0];
+    $close = @$matches['close'][0];
+    $open = @$matches['open'][0];
+    if($date && $time && $high && $low ) {
+      return array('date'=>$date,'time'=>$time,'high'=>$high,'low'=>$low,'close'=>$close,'open'=>$open);
+    }
+    return false;
+  }
+
+
   public function getQuote() {
-    list($name, $this->date, $this->low, $this->high, $this->open, $this->close) = explode(',', file_get_contents('http://finance.yahoo.com/d/quotes.csv?s='.$this->symbol.'&f=nd1ghop'));
+    list($name, $this->date, $this->low, $this->high, $this->open, $this->close) = csv_explode(',', file_get_contents('http://finance.yahoo.com/d/quotes.csv?s='.$this->symbol.'&f=nd1ghop'));
     if(!isset($this->name)) $this->name = str_replace('"', '', $name);
   }
 
 
   public function getStats($opts=array()) {
-    
     $field = 'close';
     $symbol = mysql_real_escape_string($this->symbol);
 
@@ -41,11 +80,6 @@ class Stock {
     $row = mysql_fetch_array($result);
 
     $ret = array();
-    /*$ret['cnt'] = $row["count($field)"];
-    $ret['avg'] = $row["avg($field)"];
-    $ret['std'] = $row["std($field)"];
-    $ret['min'] = $row["min($field)"];
-    $ret['max'] = $row["max($field)"];*/
     $ret['cnt'] = $row[0];
     $ret['avg'] = $row[1];
     $ret['std'] = $row[2];
@@ -53,6 +87,7 @@ class Stock {
     $ret['max'] = $row[4];
     $ret['cov'] = $ret['std']/$ret['avg'];
     
+    $this->stats = $ret;
     return $ret;
   }
 
@@ -62,6 +97,7 @@ class Stock {
     $this->shares = $row['SHARES'];
     $this->cost_basis = $row['COST_BASIS'];
     $this->holder = $row['HOLDER'];
+    $this->init();
   }
 }
 ?>

@@ -16,7 +16,7 @@ require_once('classes/stock.php');
 require_once('classes/user.php');
 require_once('classes/portfolio.php');
 
-// Funciton for debugging:
+// Function for debugging:
 function pr($data){
   echo "<pre>";
   print_r($data);
@@ -26,7 +26,7 @@ function pr($data){
 /*$p = new Portfolio;
 print_r($p->getByUser('carylee@gmail.com'));*/
 
-$page = ''; // the page the user is trying to access
+$page = 'overview'; // the page the user is trying to access
 $action = ''; // any action the user is trying to perform
 
 // Fetch the users GET and POST requests
@@ -36,7 +36,6 @@ if(isset($_POST['a'])) {
 if(isset($_GET['a'])) {
   $action = $_GET['a'];
 }
-
 if(isset($_GET['p'])) {
   $page = $_GET['p'];
 }
@@ -48,8 +47,8 @@ if( !$user->loggedIn() ) {
 }
 $portfolios = $user->getPortfolios();
 $stocks = $portfolios[1]->getStocks();
-pr($stocks[0]);
-pr($stocks[0]->getStats());
+//pr($stocks[0]);
+//pr($stocks[0]->getStats());
 
 //print_r($portfolios[0]->covCorMatrix( array('AAPL', "MSFT") ));
 
@@ -71,7 +70,6 @@ switch ($action) {
       $user->register($_POST['name'], $_POST['email'], $_POST['password']);
     }
     $page = 'overview';
-    //$url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?p=overview";
     $url = BASEURL . "?p=edit-portfolios";
     header("Location: " . $url);
     break;
