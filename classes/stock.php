@@ -14,28 +14,22 @@ class Stock {
   }
 
 
-  public function getStats($args) {
+  public function getStats($opts) {
     
     $field = 'close';
-
-    if(isset($args['field']) {
-	$field = $args['field']; 
-	}
-    if(isset($args['to']) {
-	$to = $args['to'];
-	}
-    if(isset($args['from'] {
-	$from = $args['from'];
-	}
-
-
-
-    $field = mysql_real_escape_string($field);
     $symbol = mysql_real_escape_string($symbol);
-    if(defined($to)) $to = mysql_real_escape_string($to);
-    if(defined($from)) $from = mysql_real_escape_string($from);
 
-    $query = "SELECT count('$field'), avg('$field'), std('$field'), min('$field'), min('$field'), max('$field') from StocksDaily where symbol='$symbol'";
+    if(isset($opts['field']) {
+	$field = mysql_real_escape_string($opts['field']); 
+	}
+    if(isset($opts['to']) {
+	$to = mysql_real_escape_string($opts['to']);
+	}
+    if(isset($opts['from'] {
+	$from = mysql_real_escape_string($opts['from']);
+	}
+
+    $query = "SELECT count('$field'), avg('$field'), std('$field'), min('$field'), min('$field'), max('$field') from StocksDaily where symbol='$this->symbol'";
     if(defined($to)) {
 	$query .= " and date >= '$to'";
 	}
