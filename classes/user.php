@@ -66,6 +66,7 @@ Class User {
   public function portfolio($id) {
     foreach( $this->portfolios as $portfolio ) {
       if($portfolio->id == $id) {
+        $portfolio->init();
         return $portfolio;
       }
     }

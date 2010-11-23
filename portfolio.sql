@@ -1,8 +1,10 @@
 drop sequence portfolio_ids;
+drop sequence stock_stats_cache_unique;
 drop table portfolio_stocks;
 drop table portfolio_portfolios;
 drop table portfolio_users;
 drop table portfolio_stocksDaily;
+drop table stocks_stats;
 create sequence portfolio_ids start with 1;
 
 create TABLE portfolio_users (
@@ -32,6 +34,20 @@ create TABLE portfolio_stocksDaily (
   high number NOT NULL,
   low number NOT NULL,
   volume number NOT NULL
+);
+
+create TABLE stocks_stats (
+  symbol VARCHAR(16) NOT NULL,
+  from_date number,
+  to_date number,
+  field VARCHAR(32),
+  count number NOT NULL,
+  average number NOT NULL,
+  std_dev number NOT NULL,
+  min number NOT NULL,
+  max number NOT NULL,
+  volatility number NOT NULL,
+    constraint stock_stats_cache_unique UNIQUE(symbol, from_date, to_date, field)
 );
 
 create TABLE portfolio_stocks (

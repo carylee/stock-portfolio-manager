@@ -7,6 +7,8 @@ class Stock {
     if($symbol) {
       $this->symbol = $symbol;
     }
+    global $ORACLE;
+    $this->db = $ORACLE;
   }
 
   public function init() {
@@ -53,10 +55,83 @@ class Stock {
     if(!isset($this->name)) $this->name = str_replace('"', '', $name);
   }
 
+  private function getStatsFromCache($opts=array()) {
+    isset($opts['field']) ? $field = $opts['field'] : $field = 'close';
+    isset($opts['from']) ? $from = $opts['from'] : $from = NULL;
+    isset($opts['to']) ? $from = $opts['from'] : $to = NULL;
+    $query = 'SELECT * FROM stocks_stats WHERE symbol=:symbol AND field=:field';
+    if(isset($to)) {
+      $query .= ' AND from_date=:from';
+    } else {
+      $query .= ' AND to_date IS NULL';
+    }
+    if(isset($from)){
+      $query .= ' AND to_date=:to';
+    } else {
+      $query .= ' AND to_date IS NULL';
+    }
+    $stid = oci_parse($this->db, $query);
+    oci_bind_by_name($stid, ':symbol', $this->symbol);
+    oci_bind_by_name($stid, ':field', $field);
+    if(isset($to))
+      oci_bind_by_name($stid, ':to', $to);
+    if(isset($from))
+      oci_bind_by_name($stid, ':from', $from);
+    $r = oci_execute($stid);
+    //print $query . " :symbol = $this->symbol, :field = $field, to = " . (string) $to . " from = " . (string) $from . "\n";
+    if($r) {
+      $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
+      $ret = array();
+      $ret['cnt'] = $row['COUNT'];
+      $ret['avg'] = $row['AVERAGE'];
+      $ret['std'] = $row['STD_DEV'];
+      $ret['min'] = $row['MIN'];
+      $ret['max'] = $row['MAX'];
+      $ret['cov'] = $row['VOLATILITY'];
+      $ret['vol'] = $row['VOLATILITY'];
+      //$this->stats = $ret;
+      return $ret;
+    }
+    else {
+      return false;
+    }
+  }
 
   public function getStats($opts=array()) {
+    $cachedStats = $this->getStatsFromCache($opts);
+    //print (string) $cachedStats;
+    if($cachedStats) {
+      $this->stats = $cachedStats;
+    } else {
+      $stats = $this->calcStats($opts);
+    }
+    //print "<pre>";
+    //print_r($this->stats);
+    //print "</pre>";
+  }
+
+  private function cacheStats($ret, $field, $to=NULL, $from=NULL) {
+    $stid = oci_parse($this->db, 'INSERT INTO stocks_stats (symbol, count, average, std_dev, min, max, volatility, field, from_date, to_date)
+                                  VALUES (:symbol, :count, :average, :std, :min, :max, :vol, :field, :fromdate, :todate)');
+    oci_bind_by_name($stid, ':symbol', $this->symbol);
+    oci_bind_by_name($stid, ':count', $ret['cnt']);
+    oci_bind_by_name($stid, ':average', $ret['avg']);
+    oci_bind_by_name($stid, ':std', $ret['std']);
+    oci_bind_by_name($stid, ':min', $ret['min']);
+    oci_bind_by_name($stid, ':max', $ret['max']);
+    oci_bind_by_name($stid, ':vol', $ret['cov']);
+    oci_bind_by_name($stid, ':field', $field);
+    oci_bind_by_name($stid, ':fromdate', $from);
+    oci_bind_by_name($stid, ':todate', $to);
+    $r = @oci_execute($stid);
+    oci_free_statement($stid);
+  }
+
+  private function calcStats($opts=array()) {
     $field = 'close';
     $symbol = mysql_real_escape_string($this->symbol);
+    $to = NULL;
+    $from = NULL;
 
     if(isset($opts['field'])) {
       $field = mysql_real_escape_string($opts['field']); 
@@ -88,6 +163,7 @@ class Stock {
     $ret['cov'] = $ret['std']/$ret['avg'];
     
     $this->stats = $ret;
+    $this->cacheStats($ret, $field, $to, $from);
     return $ret;
   }
 

@@ -29,7 +29,6 @@ Class Portfolio {
     $this->owner = $row['OWNER'];
     $this->cash = $row['CASH_BALANCE'];
     //print_r($this);
-    $this->getStocks();
   }
 
   public function getStocks() {
