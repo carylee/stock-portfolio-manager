@@ -144,9 +144,29 @@ Class Portfolio {
     return $shares;
   }
 
-  public function buyStock( $symbol, $shares, $date=NULL, $cost=NULL ) {
-
-   
+  public function buyStock( $symbol, $shares, $cost, $date=NULL ) {
+    if(!$date) $date = time();
+    $shares_before = $this->shares($symbol);
+    $amount = $shares*$cost;
+    $stid1 = oci_parse($this->db, 'UPDATE portfolio_portfolios SET cash_balance=(cash_balance - :amount) WHERE id=:id');
+    oci_bind_by_name($stid1, ':amount', $amount);
+    oci_bind_by_name($stid1, ':id', $this->id);
+    $r1 = oci_execute($stid1, OCI_DEFAULT);
+    if( $shares_before > 0 ) {
+      $stid2 = oci_parse($this->db, 'UPDATE portfolio_stocks SET shares=(shares + :shares), cost_basis=:cost_basis WHERE holder=:holder AND symbol=:symbol');
+    } else {
+      $stid2 = oci_parse($this->db, 'INSERT INTO portfolio_stocks (symbol, shares, cost_basis, holder) VALUES (:symbol, :shares, :cost_basis, :holder)');
+    }
+    oci_bind_by_name($stid2, ':symbol', $symbol);
+    oci_bind_by_name($stid2, ':shares', $shares);
+    oci_bind_by_name($stid2, ':cost_basis', $cost);
+    oci_bind_by_name($stid2, ':holder', $this->id);
+    $r2 = oci_execute($stid2, OCI_DEFAULT);
+    if($r1 && $r2) {
+      oci_commit($this->db);
+    } else {
+      oci_rollback($this->db);
+    }
   }
 
   public function sellStock( $symbol, $shares, $cost, $date=NULL ) {
@@ -171,7 +191,7 @@ Class Portfolio {
         oci_bind_by_name($stid2, ':symbol', $symbol);
         $r2 = oci_execute($stid2, OCI_DEFAULT);
       }
-      if($r1 and $r2) {
+      if($r1 && $r2) {
         oci_commit($this->db);
       } else {
         oci_rollback($this->db);
