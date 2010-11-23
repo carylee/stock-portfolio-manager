@@ -134,11 +134,49 @@ Class Portfolio {
     }
   }
 
+  private function shares($symbol) {
+    $shares = 0;
+    foreach($this->stocks as $stock) {
+      if( $symbol == $stock->symbol ) {
+        $shares = $stock->shares;
+      }
+    }
+    return $shares;
+  }
+
   public function buyStock( $symbol, $shares, $date=NULL, $cost=NULL ) {
+
    
   }
 
-  public function sellStock( $symbol, $shares, $date=NULL, $cost=NULL ) {
+  public function sellStock( $symbol, $shares, $cost, $date=NULL ) {
+    if(!$date) $date = time();
+    $shares_remaining = $this->shares($symbol) - $shares;
+    if($shares_remaining >= 0) {
+      $stid1 = oci_parse($this->db, 'UPDATE portfolio_portfolios SET cash_balance=(cash_balance + :amount) WHERE id=:id');
+      $amount = $shares*$cost;
+      oci_bind_by_name($stid1, ':amount', $amount);
+      oci_bind_by_name($stid1, ':id', $this->id);
+      $r1 = oci_execute($stid1, OCI_DEFAULT);
+      if( $shares_remaining > 0 ) {
+        $stid2 = oci_parse($this->db, 'UPDATE portfolio_stocks SET shares=(shares - :shares) WHERE holder=:id AND symbol=:symbol');
+        oci_bind_by_name($stid2, ':shares', $shares);
+        oci_bind_by_name($stid2, ':id', $this->id);
+        oci_bind_by_name($stid2, ':symbol', $symbol);
+        $r2 = oci_execute($stid2, OCI_DEFAULT);
+      } else {
+        $stid2 = oci_parse($this->db, 'DELETE FROM portfolio_stocks WHERE holder=:id AND symbol=:symbol');
+        oci_bind_by_name($stid2, ':shares', $shares);
+        oci_bind_by_name($stid2, ':id', $this->id);
+        oci_bind_by_name($stid2, ':symbol', $symbol);
+        $r2 = oci_execute($stid2, OCI_DEFAULT);
+      }
+      if($r1 and $r2) {
+        oci_commit($this->db);
+      } else {
+        oci_rollback($this->db);
+      }
+    }
 
   }
 

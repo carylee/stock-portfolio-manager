@@ -97,7 +97,20 @@ switch ($action) {
     break;
 
   case 'sell':
-    pr($_POST);
+    if(isset($_POST['symbol']) && isset($_POST['shares']) && isset($_POST['cost']) && isset($_POST['portfolio'])) {
+      $portfolio_id = $_POST['portfolio'];
+      $symbol = $_POST['symbol'];
+      $shares = $_POST['shares'];
+      $cost = $_POST['cost'];
+      $date = $_POST['date'];
+      if( !$date ) {
+        $date = time();
+      }
+      $portfolio = $user->portfolio($portfolio_id);
+      $portfolio->sellStock($symbol, $shares, $cost, $date);
+    }
+    header('Location: ' . BASEURL . "?p=overview&id=$portfolio_id");
+    //pr($_POST);
     break;
 
   case 'deposit':
