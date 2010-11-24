@@ -206,7 +206,6 @@ function overviewPage($user) {
   }
   $smarty = new Smarty;
   $portfolio = $user->portfolio($id);
-  //pr($portfolio->covCorMatrix());
   $smarty->assign('user', $user);
   $smarty->assign('portfolio', $portfolio);
   $smarty->assign('stocks', $portfolio->stocks);
@@ -220,8 +219,11 @@ function performancePage($user) {
     $id = $user->portfolios[0]->id;
   }
   $portfolio = $user->portfolio($id);
+  $matrix = $portfolio->covCorMatrix();
+  pr($matrix);
   $smarty = new Smarty;
   $smarty->assign('user', $user);
+  $smarty->assign('matrix', $matrix);
   $smarty->assign('portfolio', $portfolio);
   $smarty->display('performance.tpl');
 }
