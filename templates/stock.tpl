@@ -10,5 +10,7 @@
   <p>Low: {$stock->low}</p>
   <p>Open: {$stock->open}</p>
   <p>Close: {$stock->close}</p>
+<h2>Future Performance</h2>
+<img id="future-performance-chart"></img>
 </article>
 {include file="footer.tpl"}
