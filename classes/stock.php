@@ -233,5 +233,11 @@ class Stock {
     return $cov/$var;
   }
 
+  public function newCostBasis($shares, $cost) {
+    //$total_shares = $this->shares + $shares;
+    //$new_percent = $shares/$total_shares;
+    //$old_percent = $this->shares / $total_shares;
+    return ($this->shares * $this->cost_basis + $shares * $cost) / ($shares + $this->shares);
+  }
 }
 ?>

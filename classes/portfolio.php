@@ -143,6 +143,14 @@ Class Portfolio {
     return $shares;
   }
 
+  private function stock($symbol) {
+    foreach($this->stocks as $stock) {
+      if($symbol == $stock->symbol) {
+        return $stock;
+      }
+    }
+  }
+
   public function buyStock( $symbol, $shares, $cost, $date=NULL ) {
     if(!$date) $date = time();
     $shares_before = $this->shares($symbol);
@@ -152,13 +160,16 @@ Class Portfolio {
     oci_bind_by_name($stid1, ':id', $this->id);
     $r1 = oci_execute($stid1, OCI_DEFAULT);
     if( $shares_before > 0 ) {
+      $stock = $this->stock($symbol);
+      $cost_basis = $stock->newCostBasis($shares, $cost);
       $stid2 = oci_parse($this->db, 'UPDATE portfolio_stocks SET shares=(shares + :shares), cost_basis=:cost_basis WHERE holder=:holder AND symbol=:symbol');
     } else {
       $stid2 = oci_parse($this->db, 'INSERT INTO portfolio_stocks (symbol, shares, cost_basis, holder) VALUES (:symbol, :shares, :cost_basis, :holder)');
+      $cost_basis = $cost;
     }
+    oci_bind_by_name($stid2, ':cost_basis', $cost_basis);
     oci_bind_by_name($stid2, ':symbol', $symbol);
     oci_bind_by_name($stid2, ':shares', $shares);
-    oci_bind_by_name($stid2, ':cost_basis', $cost);
     oci_bind_by_name($stid2, ':holder', $this->id);
     $r2 = oci_execute($stid2, OCI_DEFAULT);
     if($r1 && $r2) {
