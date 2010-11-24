@@ -352,7 +352,7 @@ Class Portfolio {
 	$this->getStocks();
     }
 
-    $Gains = 0;
+    $pGains = 0;
 
     foreach ($stocks as $s) {
 	if(!isset($s->stats) {
@@ -365,6 +365,33 @@ Class Portfolio {
     return $pGains;
   }
 
+
+  public function getROI() {
+   if(!isset($this->total)) {
+	$this->getTotalValue()
+   }
+   if(!isset($this->gains)) {
+	$this->getGains();
+   }
+   if(!isset($this->stocks)) {
+	$this->getStocks();
+   }
+
+  $pCostBasis = 0;
+
+  foreach ($stocks as $s) {
+	if(!isset($s->stats)) {
+		$s->init();
+	}
+	
+	$pCostBasis += ($s->cost_basis)*($s->shares);
+  }
+
+  $ROI = $this->gains/$pCostBasis;
+
+  $this->ROI = $ROI;
+  return $ROI;
+  }
 
 }
 
