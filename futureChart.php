@@ -2,7 +2,6 @@
 error_reporting(E_ALL);
 $symbol = $_GET['s'];
 $cmd = "perl /home/cel294/public_html/portfolio/time_series_symbol_project.pl $symbol 30 AR 16";
-//$cmd = "./proxyChart.sh $symbol";
 // This seems to do something strange, like cache the results of time_series. It 
 // often uses old output instead of the output of the given command.
 
