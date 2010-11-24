@@ -346,6 +346,26 @@ Class Portfolio {
 
     return $pBeta;
   }
+
+  public function getGains() {
+    if(!isset($this->stocks)) {
+	$this->getStocks();
+    }
+
+    $Gains = 0;
+
+    foreach ($stocks as $s) {
+	if(!isset($s->stats) {
+		$s->init();
+	}
+	$pGains += $s->gains;
+    }
+
+    $this->gains = $pGains;
+    return $pGains;
+  }
+
+
 }
 
 ?>
