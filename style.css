@@ -98,11 +98,20 @@ article {
   width: 700px;
   height: 240px;
   float: right;
+}
+
+#future-performance-chart {
+  width: 440px;
+  height: 220px;
+}
+
+.loader {
   background-color: rgba(230,230,230, 0.8);
   background-image: url(images/ajax-loader.gif);
   background-position: center center;
   background-repeat: no-repeat;
 }
+
 
 #portfolio_chart {
   background-color: rgba(230,230,230, 0.8);

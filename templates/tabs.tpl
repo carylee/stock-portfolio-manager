@@ -8,6 +8,6 @@
     <li><a href="?p=performance">Details</a></li>
     <li><a href="?p=stock">Stock</a></li>
     <li><a href="?p=trade">Trade</a></li>
-    <li><a href="?p=transactions">Transactions</a></li>
+    <!--<li><a href="?p=transactions">Transactions</a></li>-->
   </ul>
 </nav>

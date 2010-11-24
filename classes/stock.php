@@ -64,7 +64,7 @@ class Stock {
 
 
   public function getQuote() {
-    list($name, $this->date, $this->low, $this->high, $this->open, $this->close) = csv_explode(',', file_get_contents('http://finance.yahoo.com/d/quotes.csv?s='.$this->symbol.'&f=nd1ghop'));
+    list($name, $this->date, $this->low, $this->high, $this->open, $this->close, $this->volume) = csv_explode(',', file_get_contents('http://finance.yahoo.com/d/quotes.csv?s='.$this->symbol.'&f=nd1ghopv'));
     if(!isset($this->name)) $this->name = str_replace('"', '', $name);
   }
 
