@@ -89,6 +89,7 @@ class Stock {
       $ret['max'] = $row['MAX'];
       $ret['cov'] = $row['VOLATILITY'];
       $ret['vol'] = $row['VOLATILITY'];
+      $ret['beta'] = $row['BETA'];
       return $ret;
     } else {
       return false;
@@ -106,8 +107,8 @@ class Stock {
   }
 
   private function cacheStats($ret, $field, $to=NULL, $from=NULL) {
-    $stid = oci_parse($this->db, 'INSERT INTO stocks_stats (symbol, count, average, std_dev, min, max, volatility, field, from_date, to_date)
-                                  VALUES (:symbol, :count, :average, :std, :min, :max, :vol, :field, :fromdate, :todate)');
+    $stid = oci_parse($this->db, 'INSERT INTO stocks_stats (symbol, count, average, std_dev, min, max, volatility, beta, field, from_date, to_date)
+                                  VALUES (:symbol, :count, :average, :std, :min, :max, :vol, :beta, :field, :fromdate, :todate)');
     oci_bind_by_name($stid, ':symbol', $this->symbol);
     oci_bind_by_name($stid, ':count', $ret['cnt']);
     oci_bind_by_name($stid, ':average', $ret['avg']);
@@ -115,6 +116,7 @@ class Stock {
     oci_bind_by_name($stid, ':min', $ret['min']);
     oci_bind_by_name($stid, ':max', $ret['max']);
     oci_bind_by_name($stid, ':vol', $ret['cov']);
+    oci_bind_by_name($stid, ':beta', $ret['beta'];
     oci_bind_by_name($stid, ':field', $field);
     oci_bind_by_name($stid, ':fromdate', $from);
     oci_bind_by_name($stid, ':todate', $to);
@@ -156,7 +158,8 @@ class Stock {
     $ret['min'] = $row[3];
     $ret['max'] = $row[4];
     $ret['cov'] = $ret['std']/$ret['avg'];
-    
+    $optsbeta = array('field' => $field, 'to' => $to, 'from' => $from);
+    $ret['beta'] = this->getBeta($optsbeta);    
     $this->stats = $ret;
     $this->cacheStats($ret, $field, $to, $from);
     return $ret;
@@ -169,6 +172,65 @@ class Stock {
     $this->cost_basis = $row['COST_BASIS'];
     $this->holder = $row['HOLDER'];
     $this->init();
+  }
+
+  public function getBeta($opts=array()) {
+    $field = 'close';
+    $to = NULL;
+    $from = NULL;
+
+    if(isset($opts['field'])) {
+      $field = mysql_real_escape_string($opts['field']);
+    }
+    if(isset($opts['to'])) {
+      $to = mysql_real_escape_string($opts['to']);
+    }
+    if(isset($opts['from'])) {
+      $from = mysql_real_escape_string($opts['from']);
+    }
+
+    $query = "SELECT (($field - $this->cost_basis)/$this->cost_basis) - AVG($field)) FROM StocksDaily WHERE symbol='$this->symbol'";
+    if(isset($to)) {
+      $query .= " AND date >= '$to'";
+    }
+    if(isset($from)) {
+      $query .= " AND date <= '$to'";
+    }
+
+    $result = mysql_query($query) or die (mysql_error());
+    $asset_vals = mysql_fetch_array($result, MYSQL_NUM);
+
+    $query = "SELECT (average - AVG(average)) from averagesDaily WHERE 1=1";
+    if(isset($to)) {
+      $query .= " AND date >= ':to'";
+    }
+    if(isset($from)) {
+      $query .= " AND date <= ':from'";
+    }
+
+
+    $stid = oci_parse($this->db, $query);
+    if(isset($to)) {
+	oci_bind_by_name($stid, ':to', $to);
+    }
+    if(isset($from)) {
+    	oci_bind_by_name($stid, ':from', $from);
+    }
+
+    $r = oci_execute($stid);
+    $market_vals = oci_fetch_array($r, OCI_NUM+ OCI_RETURN_NULLS)
+    oci_free_statement($stid);
+
+    $cov = 0;
+    $var = 0;
+    $count = count($asset_vals);
+
+    for($i = 0; $i < $count; $i++) {
+	$cov = ($asset_vals[$i] * $market_vals[$i]) / $count;
+	$var = (pow($market_vals[$i], 2)) / $count;
+    }
+
+    return $cov/$var;
   }
 
   public function newCostBasis($shares, $cost) {

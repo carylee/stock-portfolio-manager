@@ -48,6 +48,7 @@ create TABLE stocks_stats (
   min number NOT NULL,
   max number NOT NULL,
   volatility number NOT NULL,
+  beta number NOT NULL,
     constraint stock_stats_cache_unique UNIQUE(symbol, from_date, to_date, field)
 );
 
@@ -58,6 +59,13 @@ create TABLE portfolio_stocks (
   holder number references portfolio_portfolios(id) ON DELETE CASCADE,
     constraint stock_portfolio_unique UNIQUE(symbol, holder)
 );
+
+create TABLE averagesDaily (
+  time number NOT NULL,
+  average number NOT NULL
+);
+
+  
 
 insert into portfolio_users (email, password, name) VALUES ('carylee@gmail.com', '7be01a57f18b040a75e8de566d93352ba050a1b7e0c49f6b6114ea10b3520dea', 'Cary Lee');
 insert into portfolio_users (email, password, name) VALUES ('mcgough.david@gmail.com', '7e988f9fc6241cebf0e9376a558d558d5893befacb3e2c1fbf087bc5ae7a9f06', 'david');

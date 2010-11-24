@@ -257,6 +257,20 @@ Class Portfolio {
     return $json;
   }
 
+  public function getBeta($opts=array()) {
+    $field1 = 'close';
+
+    if(isset($opts['field1'])) {
+      $field1 = mysql_real_escape_string($opts['field1']);
+    }
+
+    if(isset($opts['to'])) {
+      $to = mysql_real_escape_string($opts['to']);
+    }
+    if(isset($opts['from'])) {
+      $from = mysql_real_escape_string($opts['from']);
+    }
+  }
 }
 
 ?>
