@@ -15,6 +15,8 @@ class Stock {
     $this->getStats();
     $this->getQuote();
     $this->getPmv();
+    $this->getGains();
+    $this->getROI();
   }
 
   private function getPmv() {
@@ -23,6 +25,17 @@ class Stock {
     }
   }
 
+  private function getGains() {
+    if( isset($this->shares) && isset($this->cost_basis) && isset($this->pmv) ) {
+	$this->gains = $this->pmv - ($this->cost_basis * $this->shares);
+     }
+  }
+
+  private function getROI() {
+    if( isset($this->gains) && isset($this->cost_basis)) {
+	$this->ROI = $this->gains / $this->cost_basis;
+    }
+  }
 
   private function extractQuoteData($quote) {
     // I don't think we're actually using this
