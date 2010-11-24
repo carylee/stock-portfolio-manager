@@ -23,9 +23,6 @@ function pr($data){
   echo "</pre>";
 }
 
-/*$p = new Portfolio;
-print_r($p->getByUser('carylee@gmail.com'));*/
-
 $page = 'overview'; // the page the user is trying to access
 $action = ''; // any action the user is trying to perform
 
@@ -70,8 +67,8 @@ switch ($action) {
     break;
 
   case 'delete-portfolio':
-    if(isset($_GET['id']) && $user->ownsPortfolio($_GET['id'])) {
-      $user->portfolio($_GET['id'])->delete();
+    if(isset($_GET['id']) && $portfolio = $user->portfolio($_GET['id'])) {
+      $portfolio->delete();
     }
     break;
 
