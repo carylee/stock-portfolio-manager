@@ -323,7 +323,7 @@ Class Portfolio {
     $totalshares = 0;
 
     foreach ($stocks as $s) {
-	if(!isset($s->stats) {
+	if(!isset($s->stats)) {
 		$s->init();
 	}
 	$runningBeta += ($s->stats['BETA']) * ($s->shares);

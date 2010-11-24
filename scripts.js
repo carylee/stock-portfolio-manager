@@ -30,7 +30,7 @@ function portfolioChart(portfolio_id) {
         rows.push( [new Date( quotes[i]['date']*1000), quotes[i]['close']*1] );
       }
       data.addRows(rows);
-      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('portfolio_chart'));
       chart.draw(data, {displayAnnotations: true});
       });
   }

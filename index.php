@@ -220,10 +220,12 @@ function performancePage($user) {
   }
   $portfolio = $user->portfolio($id);
   $matrix = $portfolio->covCorMatrix();
-  pr($matrix);
   $smarty = new Smarty;
+  $headings = array_keys($matrix['covar']);
   $smarty->assign('user', $user);
-  $smarty->assign('matrix', $matrix);
+  $smarty->assign('headings', $headings);
+  $smarty->assign('corr', $matrix['corrc']);
+  $smarty->assign('covar', $matrix['covar']);
   $smarty->assign('portfolio', $portfolio);
   $smarty->display('performance.tpl');
 }
