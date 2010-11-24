@@ -16,6 +16,7 @@ Class Portfolio {
 
   public function init() {
     $this->getStocks();
+    $this->getTotalValue();
   }
 
   public function getById($id) {
@@ -198,6 +199,16 @@ Class Portfolio {
     }
     return $shares;
   }
+
+  private function getTotalValue() {
+    $total = $this->cash;
+    foreach($this->stocks as $stock) {
+      $total += $stock->close*$stock->shares;
+    }
+    $this->total = $total;
+    return $total;
+  }
+
 
   private function stock($symbol) {
     foreach($this->stocks as $stock) {

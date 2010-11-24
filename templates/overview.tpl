@@ -31,6 +31,10 @@
   <td>Cash</td>
   <td>${$portfolio->cash|number_format:2:".":","}</td>
 </tr>
+<tr>
+  <td>Total Value</td>
+  <td>${$portfolio->total|number_format:2:".":","}</td>
+</tr>
 </table>
 <form id="overview-transaction" method="POST" >
   <fieldset>
