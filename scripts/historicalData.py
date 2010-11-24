@@ -4,7 +4,7 @@ import urllib2 as url
 import time
 
 def query(stock):
-  page = "http://339.cs.northwestern.edu/~cel294/portfolio/getHistoricalData.php?s=" + stock
+  page = "http://339.cs.northwestern.edu/~cel294/portfolio/scripts/getHistoricalData.php?s=" + stock
   handle = url.urlopen(page)
   handle.close()
 
