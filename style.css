@@ -104,6 +104,13 @@ article {
   background-repeat: no-repeat;
 }
 
+#portfolio_chart {
+  background-color: rgba(230,230,230, 0.8);
+  background-image: url(images/ajax-loader.gif);
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
 form.login fieldset {
   text-align: right;
 }
@@ -146,4 +153,8 @@ table td {
   min-width: 60px;
   max-width: 100px;
   padding-right: 20px;
+}
+
+td.stock-symbol {
+  font-weight: bold;
 }

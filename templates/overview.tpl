@@ -13,8 +13,7 @@
   <th>Close</th>
   <th>High</th>
   <th>Low</th>
-  <th>Beta (Market)</th>
-  <th>Beta (Portfolio)</th>
+  <th>Beta</th>
 </tr>
 {foreach $stocks as $stock}
 <tr>
