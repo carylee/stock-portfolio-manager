@@ -355,7 +355,7 @@ Class Portfolio {
     $pGains = 0;
 
     foreach ($stocks as $s) {
-	if(!isset($s->stats) {
+	if(!isset($s->stats)) {
 		$s->init();
 	}
 	$pGains += $s->gains;
@@ -368,7 +368,7 @@ Class Portfolio {
 
   public function getROI() {
    if(!isset($this->total)) {
-	$this->getTotalValue()
+	$this->getTotalValue();
    }
    if(!isset($this->gains)) {
 	$this->getGains();
