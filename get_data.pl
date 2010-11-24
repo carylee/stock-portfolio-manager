@@ -74,18 +74,25 @@ if(not $sth->execute()) {
 }
 
 my @data;
-if(defined $type and $type eq "ROW") {
-  @data=$sth->fetchrow_array();
-  $sth->finish();
-  $dbh->disconnect();
-}
+#if(defined $type and $type eq "ROW") {
+#  @data=$sth->fetchrow_array();
+#  $sth->finish();
+#  $dbh->disconnect();
+#}
 
 my @out;
 
 while(@data=$sth->fetchrow_array()) {
-  push @ret, @data;
+  foreach (@data) {$_ = "$_\t"}
+  print "@data\n";
+  #print "@ret\n";
 }
 
-print map{"$_\n"} @ret;
+#for my $line (@ret) {
+#  print "$line\n";
+#}
+
+$dbh->disconnect();
+#print @ret;
 
 
