@@ -2,6 +2,12 @@
 require_once('includes/db.php');
 require_once('includes/json_encode.php');
 
+/*function pr($data) {
+  print "<pre>";
+  print_r($data);
+  print "</pre>";
+}*/
+
 Class Portfolio {
   public function __construct() {
     global $ORACLE;
@@ -11,6 +17,16 @@ Class Portfolio {
   public function init() {
     $this->getStocks();
   }
+
+  public function getById($id) {
+    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE id=:id');
+    oci_bind_by_name($stid, ':id', $id);
+    $r = oci_execute($stid);
+    $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
+    $this->fromRow($row);
+    $this->getStocks();
+  }
+    
 
   public function getByUser( $email ) {
     $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE owner=:email');
@@ -69,28 +85,36 @@ Class Portfolio {
     return $r;
   }
 
-  public function covCorMatrix($symbols, $matType=NULL, $opts=NULL) {
+  public function covCorMatrix($opts=NULL) {
 
+    if(!isset($this->stocks)) {
+      $this->getStocks();
+    }
+    $symbols = $this->stocks;
     $field1 = 'close';
     $field2 = 'close';
 
     if(isset($opts['field1'])) {
-      $field1 = mysql_real_escape_string($opts['field1']);
+      $field1 = $opts['field1'];
     }
     if(isset($opts['field2'])) {
-      $field2 = mysql_real_escape_string($opts['field2']);
+      $field2 = $opts['field2'];
     }
     if(isset($opts['to'])) {
-      $to = mysql_real_escape_string($opts['to']);
+      $to = $opts['to'];
     }
     if(isset($opts['from'])) {
-      $from = mysql_real_escape_string($opts['from']);
+      $from = $opts['from'];
     }
 
+    $covar = array();
+    $corrc = array();
     foreach ($symbols as $outersym) {
-      $sym1 = $outersym;
+      $sym1 = $outersym->symbol;
+      $covar[$sym1] = array();
+      $corrc[$sym1] = array();
       foreach ($symbols as $innersym) {
-        $sym2 = $innersym;
+        $sym2 = $innersym->symbol;
         #Grab all the mean/std of each stock pair in a join
         $query = "select count(*), avg(l.$field1), std(l.$field2), avg(r.$field2), std(r.$field2) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
 
@@ -105,18 +129,15 @@ Class Portfolio {
         $result = mysql_query($query) or die (mysql_error());
         $row = mysql_fetch_array($result);
 
-        $count = $row["count(*)"];
-        $meanf1 = $row["avg(l.$field1)"];
-        $stdf1 = $row["std(l.$field1)"];
-        $meanf2 = $row["avg(r.$field2)"];
-        $stdf2 = $row["std(r.$field2)"];
+        list($count, $meanf1, $stdf1, $meanf2, $stdf2) = $row;
+        mysql_free_result($result);
+
 
         if($count < 30) {
-          $covar[$sy1][$sy2] = 'NODATA';
-          $corrc[$sy1][$sy2] = 'NODATA';
+          $covar[$sym1][$sym2] = 'NODATA';
+          $corrc[$sym1][$sym2] = 'NODATA';
         } else {
           $query = "select avg((l.$field1 - $meanf1)*(r.$field2 - $meanf2)) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
-          print $query;
           if(isset($to)) {
             $query .= " and date >= '$to'";
           }
@@ -126,12 +147,14 @@ Class Portfolio {
 
           $result = mysql_query($query) or die (mysql_error());
           $row = mysql_fetch_array($result, MYSQL_NUM);
+          mysql_free_result($result);
 
           $covar[$sym1][$sym2] = $row[0];
           $corrc[$sym1][$sym2] = $covar[$sym1][$sym2] / ($stdf1 * $stdf2);
         }
       }
     }
+    return array('covar'=>$covar, 'corrc'=>$corrc);
   }
 
   private function shares($symbol) {

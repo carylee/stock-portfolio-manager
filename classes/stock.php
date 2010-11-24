@@ -116,7 +116,7 @@ class Stock {
     oci_bind_by_name($stid, ':min', $ret['min']);
     oci_bind_by_name($stid, ':max', $ret['max']);
     oci_bind_by_name($stid, ':vol', $ret['cov']);
-    oci_bind_by_name($stid, ':beta', $ret['beta'];
+    oci_bind_by_name($stid, ':beta', $ret['beta']);
     oci_bind_by_name($stid, ':field', $field);
     oci_bind_by_name($stid, ':fromdate', $from);
     oci_bind_by_name($stid, ':todate', $to);
@@ -159,7 +159,7 @@ class Stock {
     $ret['max'] = $row[4];
     $ret['cov'] = $ret['std']/$ret['avg'];
     $optsbeta = array('field' => $field, 'to' => $to, 'from' => $from);
-    $ret['beta'] = this->getBeta($optsbeta);    
+    $ret['beta'] = $this->getBeta($optsbeta);    
     $this->stats = $ret;
     $this->cacheStats($ret, $field, $to, $from);
     return $ret;
@@ -218,7 +218,7 @@ class Stock {
     }
 
     $r = oci_execute($stid);
-    $market_vals = oci_fetch_array($r, OCI_NUM+ OCI_RETURN_NULLS)
+    $market_vals = oci_fetch_array($r, OCI_NUM+ OCI_RETURN_NULLS);
     oci_free_statement($stid);
 
     $cov = 0;

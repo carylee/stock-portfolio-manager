@@ -17,9 +17,9 @@ function drawTimeline(symbol) {
   }
 }
 
-function drawTimeline(portfolio_id) {
+function portfolioChart(portfolio_id) {
   google.load('visualization', '1', {'packages':['annotatedtimeline']});
-  google.setOnLoadCallback(function(){drawChart(symbol)});
+  google.setOnLoadCallback(function(){drawChart(portfolio_id)});
   function drawChart(portfolio_id) {
     $.getJSON('index.php', {'id':portfolio_id,'p':'portfolio-json'}, function(quotes) { 
       var data = new google.visualization.DataTable();
