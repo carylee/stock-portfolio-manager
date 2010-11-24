@@ -46,11 +46,6 @@ if( !$user->loggedIn() && !$page=='portfolio-json' ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
-///$stocks = $portfolios[1]->getStocks();
-//pr($stocks[0]);
-//pr($stocks[0]->getStats());
-
-//print_r($portfolios[0]->covCorMatrix( array('AAPL', "MSFT") ));
 
 // See what action the user is trying to perform and respond accordingly
 switch ($action) {
@@ -137,6 +132,12 @@ switch ($action) {
     initCashTransaction($_POST, 'WITHDRAW', $user);
     break;
 
+  case 'trade-search':
+    /*if(isset($_POST['symbol']) && isset($_POST['cash']) && isset($_POST['cost'])) {
+      tradeSearch($_POST['symbol'], $_POST['cash'], $_POST['cost'], $user);
+    }*/
+    break;
+
 }
 
 // See what page the user is trying to access and display it
@@ -169,7 +170,11 @@ switch ($page ) {
     break;
 
   case 'trade':
-    tradePage($user);
+    $tradeData = array();
+    if(isset($_GET['a']) && isset($_GET['symbol']) && isset($_GET['cash']) && isset($_GET['cost'])) {
+      $tradeData = tradeSearch($_GET['symbol'], $_GET['cash'], $_GET['cost'], $user);
+    }
+    tradePage($user, $tradeData);
     break;
 
   case 'transactions':
@@ -230,8 +235,17 @@ function performancePage($user) {
   $smarty->display('performance.tpl');
 }
 
-function tradePage($user) {
+function tradePage($user, $tradeData) {
   $smarty = new Smarty;
+  if(isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $portfolio = $user->portfolio($id);
+  } else {
+    $portfolio = $user->portfolios[0];
+  }
+
+  $smarty->assign('tradedata', $tradeData);
+  $smarty->assign('portfolio', $portfolio);
   $smarty->assign('user', $user);
   $smarty->display('trade.tpl');
 }
@@ -273,6 +287,12 @@ function printPortfolioJSON() {
 
   header("Content-type: application/JSON");
   print $data;
+}
+
+function tradeSearch($symbol, $cash, $cost, $user) {
+  $portfolio = $user->portfolios[0];
+  $out = $portfolio->shannonRatchet($symbol, $cash, $cost);
+  return $out;
 }
  
 oci_close($ORACLE);

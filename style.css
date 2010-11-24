@@ -159,11 +159,20 @@ table th {
 
 table td {
   text-align: left;
+  padding-right: 20px;
+}
+
+table.overview td {
   min-width: 60px;
   max-width: 100px;
-  padding-right: 20px;
 }
 
 td.stock-symbol {
   font-weight: bold;
+}
+table.trade-strategy {
+  width: auto;
+}
+table.trade-strategy td {
+  width: auto;
 }

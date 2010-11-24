@@ -2,12 +2,6 @@
 require_once('includes/db.php');
 require_once('includes/json_encode.php');
 
-/*function pr($data) {
-  print "<pre>";
-  print_r($data);
-  print "</pre>";
-}*/
-
 Class Portfolio {
   public function __construct() {
     global $ORACLE;
@@ -391,6 +385,16 @@ Class Portfolio {
 
   $this->ROI = $ROI;
   return $ROI;
+  }
+
+  public function shannonRatchet($symbol, $cash, $cost) {
+    exec("/home/cel294/public_html/portfolio/shannon_ratchet.pl $symbol $cash $cost", $output);
+    $data = array();
+    foreach( $output as $value ) {
+      preg_match('/\t+(.*)/',$value, $matches);
+      $data[] = $matches[1];
+    }
+    return $data;
   }
 
 }
