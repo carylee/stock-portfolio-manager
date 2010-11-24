@@ -281,18 +281,27 @@ Class Portfolio {
   }
 
   public function getBeta($opts=array()) {
-    $field1 = 'close';
 
-    if(isset($opts['field1'])) {
-      $field1 = mysql_real_escape_string($opts['field1']);
+    if(!isset($this->stocks)) {
+	$this->getStocks();
     }
 
-    if(isset($opts['to'])) {
-      $to = mysql_real_escape_string($opts['to']);
+    $stocks = $this->stocks;
+    $runningBeta = 0;
+    $totalshares = 0;
+
+    foreach ($stocks as $s) {
+	if(!isset($s->stats) {
+		$s->init();
+	}
+	$runningBeta += ($s->stats['BETA']) * ($s->shares);
+	$totalshares += $s->shares;
     }
-    if(isset($opts['from'])) {
-      $from = mysql_real_escape_string($opts['from']);
-    }
+
+    $pBeta = $runningBeta/$totalshares;
+    $this->beta = $pBeta;
+
+    return $pBeta;
   }
 }
 
