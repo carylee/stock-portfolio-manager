@@ -12,6 +12,16 @@ Class Portfolio {
     $this->getStocks();
   }
 
+  public function getById($id) {
+    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE id=:id');
+    oci_bind_by_name($stid, ':id', $id);
+    $r = oci_execute($stid);
+    $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
+    $this->fromRow($row);
+    $this->getStocks();
+  }
+    
+
   public function getByUser( $email ) {
     $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE owner=:email');
     oci_bind_by_name($stid, ':email', $email);

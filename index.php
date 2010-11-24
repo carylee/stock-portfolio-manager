@@ -42,7 +42,7 @@ if(isset($_GET['p'])) {
 
 // Instantiate a user object
 $user = new User();
-if( !$user->loggedIn() ) {
+if( !$user->loggedIn() && !$page='portfolio-json' ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
@@ -213,8 +213,15 @@ function overviewPage($user) {
 }
 
 function performancePage($user) {
+  if(isset($_GET['id'])) {
+    $id = $_GET['id'];
+  } else {
+    $id = $user->portfolios[0]->id;
+  }
+  $portfolio = $user->portfolio($id);
   $smarty = new Smarty;
   $smarty->assign('user', $user);
+  $smarty->assign('portfolio', $portfolio);
   $smarty->display('performance.tpl');
 }
 
@@ -253,8 +260,12 @@ function initCashTransaction($postvars, $type, $user) {
   }
 }
 
-function printPortfolioJSON($user, $portfolio) {
+function printPortfolioJSON() {
+  $id = $_GET['id'];
+  $portfolio = new Portfolio;
+  $portfolio->getById($id);
   $data = $portfolio->pastPerformance();
+
   header("Content-type: application/JSON");
   print $data;
 }
