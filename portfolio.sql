@@ -6,6 +6,7 @@ drop table portfolio_users;
 --Not dropping or creating stocksDaily because it contains valuable data
 --drop table portfolio_stocksDaily;
 drop table stocks_stats;
+drop table averagesDaily;
 create sequence portfolio_ids start with 1;
 
 create TABLE portfolio_users (
