@@ -32,7 +32,7 @@ Class Portfolio {
   }
 
   public function getStocks() {
-    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_stocks WHERE holder=:id');
+    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_stocks WHERE holder=:id order by symbol');
     oci_bind_by_name($stid, ':id', $this->id);
     $r = oci_execute($stid);
     $stocks = array();

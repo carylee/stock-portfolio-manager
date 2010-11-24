@@ -49,7 +49,7 @@ Class User {
   }
 
   public function getPortfolios() {
-    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE owner=:email');
+    $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE owner=:email order by name');
     oci_bind_by_name($stid, ':email', $this->email);
     $r = oci_execute($stid);
     $portfolios = array();

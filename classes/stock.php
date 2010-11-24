@@ -56,6 +56,7 @@ class Stock {
   }
 
   private function getStatsFromCache($opts=array()) {
+    // retrieves the pre-calculated statistics for this stock from oracle
     isset($opts['field']) ? $field = $opts['field'] : $field = 'close';
     isset($opts['from']) ? $from = $opts['from'] : $from = NULL;
     isset($opts['to']) ? $from = $opts['from'] : $to = NULL;
@@ -78,9 +79,8 @@ class Stock {
     if(isset($from))
       oci_bind_by_name($stid, ':from', $from);
     $r = oci_execute($stid);
-    //print $query . " :symbol = $this->symbol, :field = $field, to = " . (string) $to . " from = " . (string) $from . "\n";
-    if($r) {
-      $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
+    $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
+    if(isset($row['COUNT'])) {
       $ret = array();
       $ret['cnt'] = $row['COUNT'];
       $ret['avg'] = $row['AVERAGE'];
@@ -89,10 +89,8 @@ class Stock {
       $ret['max'] = $row['MAX'];
       $ret['cov'] = $row['VOLATILITY'];
       $ret['vol'] = $row['VOLATILITY'];
-      //$this->stats = $ret;
       return $ret;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -105,9 +103,6 @@ class Stock {
     } else {
       $stats = $this->calcStats($opts);
     }
-    //print "<pre>";
-    //print_r($this->stats);
-    //print "</pre>";
   }
 
   private function cacheStats($ret, $field, $to=NULL, $from=NULL) {
