@@ -1,11 +1,15 @@
 <?php
-$symbol = "AAPL";
+$symbol = $_GET['s'];
 
-if(isset($_GET['s'])){
-  $symbol = $_GET['s'];
-}
+$cmd = "perl time_series_symbol_project.pl " . $symbol . " 30 AR 16";
 
-exec("perl time_series_symbol_project.pl $symbol 30 AR 16", $output);
+//print "Command: " . $cmd;
+exec($cmd, $output);
+//$raw = `$cmd`;
+//$output = explode("\n", $raw);
+print "<pre>";
+print_r($output);
+print "</pre>";
 
 $data = array();
 foreach($output as $row) {
@@ -28,4 +32,5 @@ function gchart($data) {
 }
 
 print gchart($data);
+unset($output);
 ?>

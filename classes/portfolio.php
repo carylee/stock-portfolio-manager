@@ -355,7 +355,7 @@ Class Portfolio {
     $Gains = 0;
 
     foreach ($stocks as $s) {
-	if(!isset($s->stats) {
+	if(!isset($s->stats)) {
 		$s->init();
 	}
 	$pGains += $s->gains;

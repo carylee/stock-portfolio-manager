@@ -12,5 +12,6 @@
   <p>Close: {$stock->close}</p>
 <h2>Future Performance</h2>
 <img id="future-performance-chart"></img>
+<script>replaceImage('{$stock->symbol}', "future-performance-chart");</script>
 </article>
 {include file="footer.tpl"}

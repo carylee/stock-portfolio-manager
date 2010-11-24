@@ -13,6 +13,8 @@
   <th>Close</th>
   <th>High</th>
   <th>Low</th>
+  <th>Gains</th>
+  <th>ROI</th>
   <th>Beta</th>
 </tr>
 {foreach $stocks as $stock}
@@ -25,6 +27,8 @@
   <td>{$stock->close}</td>
   <td>{$stock->high}</td>
   <td>{$stock->low}</td>
+  <td>{$stock->gains|number_format:2:".":","}</td>
+  <td>{$stock->ROI|number_format:2:".":","}</td>
 </tr>
 {/foreach}
 <tr>

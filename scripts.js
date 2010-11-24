@@ -36,6 +36,11 @@ function portfolioChart(portfolio_id) {
   }
 }
 
+var replaceImage = function(symbol, id) {
+  $.get('futureChart.php', {'s':symbol}, function(data) {
+    $("#"+id)[0].src = data;
+  })}
+
 $(document).ready(function(){
   $('#transaction-type').change( function(){
     if( this.value == 'sell' || this.value == 'buy' ) {
