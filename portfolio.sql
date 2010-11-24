@@ -52,6 +52,14 @@ create TABLE stocks_stats (
     constraint stock_stats_cache_unique UNIQUE(symbol, from_date, to_date, field)
 );
 
+create TABLE covar_corr (
+  symbol1 VARCHAR(16) NOT NULL,
+  symbol2 VARCHAR(16) NOT NULL,
+  covar number NOT NULL,
+  corr number NOT NULL,
+    constraint covar_corr_unique UNIQUE(symbol1, symbol2)
+);
+
 create TABLE portfolio_stocks (
   symbol VARCHAR(16) NOT NULL,
   shares number default '0' NOT NULL,

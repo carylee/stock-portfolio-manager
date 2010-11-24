@@ -115,46 +115,78 @@ Class Portfolio {
       $corrc[$sym1] = array();
       foreach ($symbols as $innersym) {
         $sym2 = $innersym->symbol;
-        #Grab all the mean/std of each stock pair in a join
-        $query = "select count(*), avg(l.$field1), std(l.$field2), avg(r.$field2), std(r.$field2) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
-
-        if(isset($to)) {
-          $query .= " and date >= '$to'";
-        }
-		
-        if(isset($from)) {
-          $query .= " and date <= '$to'";
-        }
- 
-        $result = mysql_query($query) or die (mysql_error());
-        $row = mysql_fetch_array($result);
-
-        list($count, $meanf1, $stdf1, $meanf2, $stdf2) = $row;
-        mysql_free_result($result);
-
-
-        if($count < 30) {
-          $covar[$sym1][$sym2] = 'NODATA';
-          $corrc[$sym1][$sym2] = 'NODATA';
+        if($covcor = $this->getCovCorr($sym1,$sym2)) {
+          $covariance = $covcor['COVAR'];
+          $thiscorr = $covcor['CORR'];
         } else {
-          $query = "select avg((l.$field1 - $meanf1)*(r.$field2 - $meanf2)) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
+          #Grab all the mean/std of each stock pair in a join
+          $query = "select count(*), avg(l.$field1), std(l.$field2), avg(r.$field2), std(r.$field2) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
+
           if(isset($to)) {
             $query .= " and date >= '$to'";
           }
+      
           if(isset($from)) {
             $query .= " and date <= '$to'";
           }
-
+   
           $result = mysql_query($query) or die (mysql_error());
-          $row = mysql_fetch_array($result, MYSQL_NUM);
+          $row = mysql_fetch_array($result);
+
+          list($count, $meanf1, $stdf1, $meanf2, $stdf2) = $row;
           mysql_free_result($result);
 
-          $covar[$sym1][$sym2] = $row[0];
-          $corrc[$sym1][$sym2] = $covar[$sym1][$sym2] / ($stdf1 * $stdf2);
+
+          if($count < 30) {
+            $covar[$sym1][$sym2] = 'NODATA';
+            $corrc[$sym1][$sym2] = 'NODATA';
+          } else {
+            $query = "select avg((l.$field1 - $meanf1)*(r.$field2 - $meanf2)) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
+            if(isset($to)) {
+              $query .= " and date >= '$to'";
+            }
+            if(isset($from)) {
+              $query .= " and date <= '$to'";
+            }
+
+            $result = mysql_query($query) or die (mysql_error());
+            $row = mysql_fetch_array($result, MYSQL_NUM);
+            mysql_free_result($result);
+
+            $covariance = $row[0];
+            $thiscorr = $covariance / ($stdf1 * $stdf2);
+
+            $this->cacheCovCorr($sym1,$sym2,$covariance,$thiscorr);
+          }
         }
+      $covar[$sym1][$sym2] = $covariance;
+      $corrc[$sym1][$sym2] = $thiscorr;
       }
     }
     return array('covar'=>$covar, 'corrc'=>$corrc);
+  }
+
+  private function getCovCorr($symbol1, $symbol2) {
+    $stid = oci_parse($this->db, 'SELECT covar, corr FROM covar_corr WHERE symbol1=:symbol1 AND symbol2=:symbol2');
+    oci_bind_by_name($stid, ':symbol1', $symbol1);
+    oci_bind_by_name($stid, ':symbol2', $symbol2);
+    $r = oci_execute($stid);
+    $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
+    oci_free_statement($stid);
+    if( count($row) > 0 ) {
+      return $row;
+    } else {
+      return false;
+    }
+  }
+
+  private function cacheCovCorr($symbol1, $symbol2, $cov, $corr) {
+    $stid = oci_parse($this->db, 'INSERT INTO covar_corr (symbol1, symbol2, covar, corr) VALUES (:symbol1, :symbol2, :covar, :corr)');
+    oci_bind_by_name($stid, ':symbol1', $symbol1);
+    oci_bind_by_name($stid, ':symbol2', $symbol2);
+    oci_bind_by_name($stid, ':covar', $cov);
+    oci_bind_by_name($stid, ':corr', $corr);
+    $r = @oci_execute($stid);
   }
 
   private function shares($symbol) {
