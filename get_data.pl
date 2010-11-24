@@ -74,13 +74,6 @@ if(not $sth->execute()) {
 }
 
 my @data;
-#if(defined $type and $type eq "ROW") {
-#  @data=$sth->fetchrow_array();
-#  $sth->finish();
-#  $dbh->disconnect();
-#}
-
-my @out;
 
 while(@data=$sth->fetchrow_array()) {
   foreach (@data) {$_ = "$_\t"}
@@ -88,11 +81,8 @@ while(@data=$sth->fetchrow_array()) {
   #print "@ret\n";
 }
 
-#for my $line (@ret) {
-#  print "$line\n";
-#}
 
 $dbh->disconnect();
-#print @ret;
+
 
 
