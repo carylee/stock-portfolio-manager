@@ -42,7 +42,7 @@ if(isset($_GET['p'])) {
 
 // Instantiate a user object
 $user = new User();
-if( !$user->loggedIn() && !$page='portfolio-json' ) {
+if( !$user->loggedIn() && !$page=='portfolio-json' ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
@@ -206,6 +206,7 @@ function overviewPage($user) {
   }
   $smarty = new Smarty;
   $portfolio = $user->portfolio($id);
+  //pr($portfolio->covCorMatrix());
   $smarty->assign('user', $user);
   $smarty->assign('portfolio', $portfolio);
   $smarty->assign('stocks', $portfolio->stocks);
@@ -270,6 +271,5 @@ function printPortfolioJSON() {
   print $data;
 }
  
-
 oci_close($ORACLE);
 ?>
