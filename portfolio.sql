@@ -3,7 +3,8 @@ drop sequence stock_stats_cache_unique;
 drop table portfolio_stocks;
 drop table portfolio_portfolios;
 drop table portfolio_users;
-drop table portfolio_stocksDaily;
+--Not dropping or creating stocksDaily because it contains valuable data
+--drop table portfolio_stocksDaily;
 drop table stocks_stats;
 create sequence portfolio_ids start with 1;
 
@@ -25,16 +26,16 @@ create TABLE portfolio_portfolios (
     constraint cash_balance_nonnegative CHECK( cash_balance >=0 )
 );
 
-create TABLE portfolio_stocksDaily (
-  symbol varchar(16) NOT NULL,
-  time number NOT NULL,
-    constraint stock_time_unique UNIQUE(symbol, time),
-  open number NOT NULL,
-  close number NOT NULL,
-  high number NOT NULL,
-  low number NOT NULL,
-  volume number NOT NULL
-);
+--create TABLE portfolio_stocksDaily (
+  --symbol varchar(16) NOT NULL,
+  --time number NOT NULL,
+    --constraint stock_time_unique UNIQUE(symbol, time),
+  --open number NOT NULL,
+  --close number NOT NULL,
+  --high number NOT NULL,
+  --low number NOT NULL,
+  --volume number NOT NULL
+--);
 
 create TABLE stocks_stats (
   symbol VARCHAR(16) NOT NULL,
