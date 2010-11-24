@@ -13,7 +13,7 @@
 <header>
 <img id="logo" src="http://dummyimage.com/120x70/000/fff&text=Portfolio"></img>
 <form id="search" action="index.php" method="GET">
-  <input value="Symbol" name="stock"></input>
+  <input id="search-symbol" value="Symbol" name="stock"></input>
   <input type="hidden" name="p" value="stock" />
   <input id="getQuote" type="Submit" value="Get quote"></input>
 </form>

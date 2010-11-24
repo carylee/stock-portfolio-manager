@@ -194,7 +194,7 @@ Class Portfolio {
     return $shares;
   }
 
-  private function getTotalValue() {
+  public function getTotalValue() {
     $total = $this->cash;
     foreach($this->stocks as $stock) {
       $total += $stock->close*$stock->shares;

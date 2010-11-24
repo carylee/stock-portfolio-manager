@@ -42,6 +42,11 @@ var replaceImage = function(symbol, id) {
   })}
 
 $(document).ready(function(){
+  $("#search-symbol").focus( function() {
+    if( $(this).val() == 'Symbol') {
+      $(this).val('');
+    }
+  });
   $('#transaction-type').change( function(){
     if( this.value == 'sell' || this.value == 'buy' ) {
       //$('#quantity-label').html('Shares');
@@ -52,5 +57,10 @@ $(document).ready(function(){
       $('.stock-transaction').hide();
       $('.cash-transaction').show();
     }
+  });
+  $('#overview-symbol').change( function() {
+    $.get('index.php', {'p':'getcost','s':$(this).val()}, function(data) {
+      $('#overview-cost').val(data);
     });
+  });
 });
