@@ -1,5 +1,6 @@
 <?php
 require_once('includes/db.php');
+require_once('includes/json_encode.php');
 
 Class Portfolio {
   public function __construct() {
@@ -234,6 +235,26 @@ Class Portfolio {
   public function withdraw( $amount ) {
     $this->cashTransaction($amount, 'DEPOSIT');
 
+  }
+
+  public function pastPerformance() {
+    $data = array();
+    foreach( $this->stocks as $stock) {
+      //print_r($stock->pastPerformance());
+      $perf = $stock->pastPerformance();
+        foreach( $perf as $time=>$value) {
+          if(!isset($data[$time])) {
+            $data[$time] = 0;
+          }
+          $data[$time] += $value;
+        }
+    }
+    $fixeddata = array();
+    foreach( $data as $time=>$value ) {
+      $fixeddata[] = array('date'=>$time, 'close'=>$value);
+    }
+    $json = __json_encode($fixeddata);
+    return $json;
   }
 
 }

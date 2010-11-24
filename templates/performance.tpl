@@ -2,11 +2,7 @@
 {include 'sidebar.tpl' links=$portfolios}
 {include 'tabs.tpl'}
 <article>
-<br />
-This page will have information about an individual portfolio's performance.
-<br/>
-<br/>
-<br/>
-<br/>
+<script>drawTimeline("{$stock->symbol}");</script>
+<div id='chart_div' style='width: 700px; height: 240px;'></div>
 </article>
 {include file="footer.tpl"}

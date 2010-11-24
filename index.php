@@ -99,7 +99,9 @@ switch ($action) {
       $shares = $_POST['shares'];
       $cost = $_POST['cost'];
       $date = $_POST['date'];
-      if( !$date ) {
+      if( $date ) {
+        strtotime($date);
+      } else {
         $date = time();
       }
       $portfolio = $user->portfolio($portfolio_id);
@@ -112,10 +114,13 @@ switch ($action) {
     if(isset($_POST['symbol']) && isset($_POST['shares']) && isset($_POST['cost']) && isset($_POST['portfolio'])) {
       $portfolio_id = $_POST['portfolio'];
       $symbol = $_POST['symbol'];
+      $symbol = preg_replace('/[^A-Za-z]/','',$symbol);
       $shares = $_POST['shares'];
       $cost = $_POST['cost'];
       $date = $_POST['date'];
-      if( !$date ) {
+      if( $date ) {
+        strtotime($date);
+      } else {
         $date = time();
       }
       $portfolio = $user->portfolio($portfolio_id);
@@ -152,6 +157,13 @@ switch ($page ) {
     edit_portfoliosPage($user);
     break;
 
+  case 'portfolio-json':
+    if(isset($_GET['id'])) {
+      $portfolio = $user->portfolio($_GET['id']);
+      printPortfolioJSON($user, $portfolio);
+    }
+    break;
+
   case 'login':
     loginPage();
     break;
@@ -177,6 +189,7 @@ function stockPage($user) {
   $symbol = 'AAPL';
   if(isset($_GET['stock'])) {
     $symbol = $_GET['stock'];
+    $symbol = preg_replace('/[^A-Za-z]/', '', $symbol);
   }
   $stock = new Stock($symbol);
   $stock->getQuote();
@@ -238,6 +251,12 @@ function initCashTransaction($postvars, $type, $user) {
       header('Location: ' . BASEURL . "?p=overview&id=$id");
     }
   }
+}
+
+function printPortfolioJSON($user, $portfolio) {
+  $data = $portfolio->pastPerformance();
+  header("Content-type: application/JSON");
+  print $data;
 }
  
 

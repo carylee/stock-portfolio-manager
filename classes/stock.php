@@ -178,6 +178,17 @@ class Stock {
     return ($this->shares * $this->cost_basis + $shares * $cost) / ($shares + $this->shares);
   }
 
+  public function pastPerformance() {
+    $stid = oci_parse($this->db, 'SELECT time,close FROM portfolio_StocksDaily WHERE symbol=:symbol');
+    oci_bind_by_name($stid, ':symbol', $this->symbol);
+    $r = oci_execute($stid);
+    $data = array();
+    while( $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS) ) {
+      $data[$row['TIME']] = $row['CLOSE'] * $this->shares;
+    }
+    return $data;
+  }
+
 
 }
 ?>
