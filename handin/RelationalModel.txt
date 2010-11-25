@@ -1,0 +1,16 @@
+RELATIONAL MODEL
+-----------------
+
+PortfolioUsers(email*, name, password)
+
+Portfolios(id*, name, description, owner, creation_date, cash_balance)
+
+StocksDaily_new(symbol*, time*, open, close, high, low, volume)
+
+Stocks(symbol*, holder*, shares, cost_basis)
+
+StockStats(symbol*, from_date*, to_date*, field*, count, average, std_dev, min, max, volatility, beta)
+
+CovarCorrCache(symbol_1*, symbol_2*, covariance, correlation)
+
+DailyAverages(time*, average*)

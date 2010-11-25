@@ -1,0 +1,16 @@
+Explantion of files:
+
+includes/db.php
+* Sets environment variables and initializes databases connetions for both Oracle and MySQL
+
+includes/csv_explode.php
+* Provides functionality similar to str_getcsv() found in later versions of PHP
+* taken from the comments of php.net
+
+includes/json_encode.php
+* Also taken from comments of php.net, making up for the lack of the 
+  native function of the same name found in later versions of php
+
+futureChart.php
+* This chart runs time_series_symbol_project.pl given a symbol as a GET parameter
+* returns the url to a google chart
