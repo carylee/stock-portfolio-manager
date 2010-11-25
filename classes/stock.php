@@ -161,7 +161,9 @@ class Stock {
       $query .= " AND date <= '$to'";
     }
 
-    $result = mysql_query($query) or die (mysql_error());
+    error_log($query);
+    //$result = mysql_query($query) or die (mysql_error());
+    $result = mysql_query($query);
     $row = mysql_fetch_array($result);
 
     $ret = array();
@@ -202,7 +204,7 @@ class Stock {
       $from = mysql_real_escape_string($opts['from']);
     }
 
-    $query = "SELECT (($field - $this->cost_basis)/$this->cost_basis) - AVG($field)) FROM StocksDaily WHERE symbol='$this->symbol'";
+    $query = "SELECT ((($field - $this->cost_basis)/$this->cost_basis) - AVG($field)) FROM StocksDaily WHERE symbol='$this->symbol'";
     if(isset($to)) {
       $query .= " AND date >= '$to'";
     }
