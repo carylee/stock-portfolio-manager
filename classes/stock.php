@@ -24,6 +24,7 @@ class Stock {
     $this->getPmv();
     $this->getGains();
     $this->getROI();
+    $this->getBeta();
   }
 
   private function getPmv() {
@@ -161,7 +162,7 @@ class Stock {
     $ret['max'] = $row[4];
     $ret['cov'] = $ret['std']/$ret['avg'];
     $optsbeta = array('field' => $field, 'to' => $to, 'from' => $from);
-    $ret['beta'] = $this->getBeta($optsbeta);    
+    $ret['beta'] = $this->beta;    
     $this->stats = $ret;
     $this->cacheStats($ret, $field, $to, $from);
     return $ret;
@@ -232,8 +233,8 @@ class Stock {
 	$cov = ($asset_vals[$i] * $market_vals[$i]) / $count;
 	$var = (pow($market_vals[$i], 2)) / $count;
     }
-
-    return $cov/$var;
+    $this->beta = $cov/$var;
+    return $this->beta;
   }
 
   public function newCostBasis($shares, $cost) {

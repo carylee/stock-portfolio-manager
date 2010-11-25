@@ -29,6 +29,7 @@
   <td>{$stock->low}</td>
   <td>{$stock->gains|number_format:2:".":","}</td>
   <td>{$stock->ROI|number_format:2:".":","}</td>
+  <td>{$stock->beta|number_format:2:".":","}</td>
 </tr>
 {/foreach}
 <tr>
