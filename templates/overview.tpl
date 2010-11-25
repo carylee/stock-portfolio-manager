@@ -3,7 +3,7 @@
 {include 'tabs.tpl'}
 <article>
 <h1>{$portfolio->name}</h1>
-<table class='stock-data'>
+<table class='stock-data overview'>
 <tr>
   <th>Symbol</th>
   <th>Shares</th>

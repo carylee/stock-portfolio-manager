@@ -2,30 +2,32 @@
 require_once('includes/db.php');
 require_once('includes/json_encode.php');
 
-/*function pr($data) {
-  print "<pre>";
-  print_r($data);
-  print "</pre>";
-}*/
-
 Class Portfolio {
   public function __construct() {
+    /*
+     * Consructor
+     * Makes the oracle connection established in db.php available
+     */
     global $ORACLE;
     $this->db = $ORACLE;
   }
 
   public function init() {
+    /*
+     * Runs methods which initialize values of the object
+     */
     $this->getStocks();
     $this->getTotalValue();
   }
 
   public function getById($id) {
+    // Performs a query and initializes the object given a portfolio id
     $stid = oci_parse($this->db, 'SELECT * FROM portfolio_portfolios WHERE id=:id');
     oci_bind_by_name($stid, ':id', $id);
     $r = oci_execute($stid);
     $row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS);
     $this->fromRow($row);
-    $this->getStocks();
+    $this->init();
   }
     
 
@@ -41,18 +43,22 @@ Class Portfolio {
     return $portfolios;
   }
 
-  public function fromRow( $row ) {
+  public function fromRow($row) {
+    // Initializes member properties from a database query
+    // $row is an associative array returned from  oci_fetch_array()
     $this->id = $row['ID'];
     $this->name = $row['NAME'];
     $this->owner = $row['OWNER'];
     $this->cash = $row['CASH_BALANCE'];
-    //print_r($this);
   }
 
   public function getStocks() {
+    // Runs a query to fetch all the stocks held by this portfolio
+    // These stocks are instantiated as stock objects and stored
+    // in the array $this->stocks
     $stid = oci_parse($this->db, 'SELECT * FROM portfolio_stocks WHERE holder=:id order by symbol');
     oci_bind_by_name($stid, ':id', $this->id);
-    $r = oci_execute($stid);
+    oci_execute($stid);
     $stocks = array();
     while ($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_NULLS)) {
       $stock = new Stock;
@@ -65,14 +71,25 @@ Class Portfolio {
   }
 
   public function delete() {
+    //  Remove this portfolio from the database
+    //  Returns a boolean of the success/failure of the query
     $stid = oci_parse($this->db, 'DELETE FROM portfolio_portfolios WHERE id=:id');
     oci_bind_by_name($stid, ':id', $this->id);
     $r = oci_execute($stid);
     oci_free_statement($stid);
+    return $r;
   }
 
   public function create($owner,$name,$description,$initial_deposit) {
-    print "Owner is: $owner";
+    /*
+     * Add a new portfolio to the database
+     * arguments:
+     * owner (user's email address)
+     * name (the name of the new portfolio)
+     * description
+     * initial_deposit
+     * Returns a boolean of the success/failure of the query
+     */
     $stid = oci_parse($this->db, 'INSERT INTO portfolio_portfolios (id, owner, name, description, cash_balance, creation_date) 
       VALUES(portfolio_ids.nextval, :owner, :name, :description, :deposit, :today)');
     oci_bind_by_name($stid, ':owner', $owner);
@@ -81,12 +98,27 @@ Class Portfolio {
     oci_bind_by_name($stid, ':deposit', $initial_deposit);
     oci_bind_by_name($stid, ':today', time());
     $r = oci_execute($stid);
-    //print $r;
     oci_free_statement($stid);
     return $r;
   }
 
   public function covCorMatrix($opts=NULL) {
+    /*
+     * Calculate the covariance & correlation matricies
+     * for this portfolio
+     *
+     * returns an associative array
+     * $return['covar'] is Covariance
+     * $return['corrc'] is Correlation
+     *
+     * optionally takes named arguments
+     * $opts['field1'] - the first field to be used
+     * $opts['field2'] - the second field to be used
+     * $opts['from'] - start date of window (in unix time)
+     * $opts['to'] - end date of window (in unix time)
+     *
+     * This function is basically translated from the provided perl script
+     */
 
     if(!isset($this->stocks)) {
       $this->getStocks();
@@ -117,10 +149,12 @@ Class Portfolio {
       foreach ($symbols as $innersym) {
         $sym2 = $innersym->symbol;
         if($covcor = $this->getCovCorr($sym1,$sym2)) {
+          // Check to see if this pair has cached values
+          // If so, use those. If not, calculate them.
           $covariance = $covcor['COVAR'];
           $thiscorr = $covcor['CORR'];
         } else {
-          #Grab all the mean/std of each stock pair in a join
+          //Grab all the mean/std of each stock pair in a join
           $query = "select count(*), avg(l.$field1), std(l.$field2), avg(r.$field2), std(r.$field2) from StocksDaily l join StocksDaily r on l.date=r.date where l.symbol='$sym1' and r.symbol='$sym2'";
 
           if(isset($to)) {
@@ -157,6 +191,7 @@ Class Portfolio {
             $covariance = $row[0];
             $thiscorr = $covariance / ($stdf1 * $stdf2);
 
+            // Cache this stock pair and these values
             $this->cacheCovCorr($sym1,$sym2,$covariance,$thiscorr);
           }
         }
@@ -168,6 +203,12 @@ Class Portfolio {
   }
 
   private function getCovCorr($symbol1, $symbol2) {
+    /*
+     * Looks up a pair of symbols in the covar_corr cache table
+     * to see if their covariance and correlation have already been calculated.
+     * If they have, return an object of the form array('COVAR'=>value,'CORR'=>value)
+     * otherwise, return false (cache miss)
+     */
     $stid = oci_parse($this->db, 'SELECT covar, corr FROM covar_corr WHERE symbol1=:symbol1 AND symbol2=:symbol2');
     oci_bind_by_name($stid, ':symbol1', $symbol1);
     oci_bind_by_name($stid, ':symbol2', $symbol2);
@@ -182,6 +223,13 @@ Class Portfolio {
   }
 
   private function cacheCovCorr($symbol1, $symbol2, $cov, $corr) {
+    /*
+     * Cache a pair of stocks' calculated covariance and correlation
+     * values are cached to the table covar_corr
+     *
+     * currently, caching does not support any of the options for covCorMatrix (field, from, to)
+     * TODO: Add support for $opts
+     */
     $stid = oci_parse($this->db, 'INSERT INTO covar_corr (symbol1, symbol2, covar, corr) VALUES (:symbol1, :symbol2, :covar, :corr)');
     oci_bind_by_name($stid, ':symbol1', $symbol1);
     oci_bind_by_name($stid, ':symbol2', $symbol2);
@@ -191,6 +239,9 @@ Class Portfolio {
   }
 
   private function shares($symbol) {
+    // Checks the number of shares of a particular stock in this portfolio
+    // given that stock's symbol.
+    // If the stock is not in the portfolio, shares($symbol) = 0
     $shares = 0;
     foreach($this->stocks as $stock) {
       if( $symbol == $stock->symbol ) {
@@ -200,17 +251,34 @@ Class Portfolio {
     return $shares;
   }
 
-  private function getTotalValue() {
-    $total = $this->cash;
+  public function getStocksValue() {
+    // Returns the current value of the stocks held by this portfolio
+    // based on the quantity of each stock and each stock's last
+    // close price.
+    //
+    // returns this value and sets $this->stocksValue
+    $value = 0;
     foreach($this->stocks as $stock) {
-      $total += $stock->close*$stock->shares;
+      $value += $stock->close*$stock->shares;
     }
-    $this->total = $total;
-    return $total;
+    $this->stocksValue = $value;
+    return $value;
+  }
+
+  public function getTotalValue() {
+    // Returns the total value of the portfolio
+    // value of stocks + cash
+    // Also sets $this->total
+    $value = $this->getStocksValue();
+    $value += $this->cash;
+    $this->total = $value;
+    return $value;
   }
 
 
   private function stock($symbol) {
+    // Returns a stock object of a stock held by this portfolio
+    // given its symbol
     foreach($this->stocks as $stock) {
       if($symbol == $stock->symbol) {
         return $stock;
@@ -219,6 +287,13 @@ Class Portfolio {
   }
 
   public function buyStock( $symbol, $shares, $cost, $date=NULL ) {
+    /* Adds $shares shares of stock $symbol to the portfolio
+     * only if this portfolio has enough cash (at least $shares * $cost )
+     * Decrement cash accordingly
+     *
+     * Date is currently unused.
+     * TODO: Implement use of date
+     */
     if(!$date) $date = time();
     $shares_before = $this->shares($symbol);
     $amount = $shares*$cost;
@@ -247,6 +322,11 @@ Class Portfolio {
   }
 
   public function sellStock( $symbol, $shares, $cost, $date=NULL ) {
+    // Sell $shares of stock $symbol at $cost (only if the portfolio has enough stock)
+    // Increment cash accordingly
+    //
+    // $date is currently unused (defaults to time())
+    // TODO: implement $date
     if(!$date) $date = time();
     $shares_remaining = $this->shares($symbol) - $shares;
     if($shares_remaining >= 0) {
@@ -278,6 +358,8 @@ Class Portfolio {
   }
 
   public function cashTransaction($amount, $type) {
+    // executes a withdrawl or deposit, changing the cash in the portfolio
+    // $type expects 'DEPOSIT' or 'WITHDRAW'
     switch($type) {
       case 'DEPOSIT':
         $stid = oci_parse($this->db, 'UPDATE portfolio_portfolios SET cash_balance=(cash_balance + :amount) WHERE id=:id');
@@ -293,20 +375,31 @@ Class Portfolio {
     return $r;
   }
 
-
-  public function deposit( $amount ) {
+  public function deposit($amount) {
+    // Wrapper function for cashTransaction(deposit)
     $this->cashTransaction($amount, 'DEPOSIT');
   }
 
-  public function withdraw( $amount ) {
+  public function withdraw($amount) {
+    // Wrapper function for cashTransaction(withdraw)
     $this->cashTransaction($amount, 'DEPOSIT');
-
   }
 
   public function pastPerformance() {
+    /*
+     * Calculate the cumulative past performance of the stocks in this portfolio
+     * based on their historical close dates
+     *
+     * Returns a json object of form [{'date':unixtime,'close':value}]
+     *
+     * NOTE: this naiively only considers current holdings.
+     * It retrospectively calculates what the value of current portfolio would have been
+     * over the most recent year of historical data.
+     *
+     * it does NOT take into consideration changes in the portfolio over time
+     */
     $data = array();
     foreach( $this->stocks as $stock) {
-      //print_r($stock->pastPerformance());
       $perf = $stock->pastPerformance();
         foreach( $perf as $time=>$value) {
           if(!isset($data[$time])) {
@@ -317,6 +410,9 @@ Class Portfolio {
     }
     $fixeddata = array();
     foreach( $data as $time=>$value ) {
+      // Restructure array for jsonencode
+      // This could have been designed better
+      // Todo: refactor
       $fixeddata[] = array('date'=>$time, 'close'=>$value);
     }
     $json = __json_encode($fixeddata);
@@ -324,9 +420,10 @@ Class Portfolio {
   }
 
   public function getBeta($opts=array()) {
+    // Calculate the beta for this portfolio
 
     if(!isset($this->stocks)) {
-	$this->getStocks();
+      $this->getStocks();
     }
 
     $stocks = $this->stocks;
@@ -334,11 +431,11 @@ Class Portfolio {
     $totalshares = 0;
 
     foreach ($stocks as $s) {
-	if(!isset($s->stats)) {
-		$s->init();
-	}
-	$runningBeta += ($s->stats['BETA']) * ($s->shares);
-	$totalshares += $s->shares;
+      if(!isset($s->stats)) {
+        $s->init();
+      }
+      $runningBeta += ($s->stats['BETA']) * ($s->shares);
+      $totalshares += $s->shares;
     }
 
     $pBeta = $runningBeta/$totalshares;
@@ -349,16 +446,16 @@ Class Portfolio {
 
   public function getGains() {
     if(!isset($this->stocks)) {
-	$this->getStocks();
+      $this->getStocks();
     }
 
     $pGains = 0;
 
     foreach ($stocks as $s) {
-	if(!isset($s->stats)) {
-		$s->init();
-	}
-	$pGains += $s->gains;
+      if(!isset($s->stats)) {
+        $s->init();
+      }
+      $pGains += $s->gains;
     }
 
     $this->gains = $pGains;
@@ -367,30 +464,45 @@ Class Portfolio {
 
 
   public function getROI() {
-   if(!isset($this->total)) {
-	$this->getTotalValue();
-   }
-   if(!isset($this->gains)) {
-	$this->getGains();
-   }
-   if(!isset($this->stocks)) {
-	$this->getStocks();
-   }
+    // Calculate the ROI of this portfolio
+    if(!isset($this->total)) {
+      $this->getTotalValue();
+    }
+    if(!isset($this->gains)) {
+      $this->getGains();
+    }
+    if(!isset($this->stocks)) {
+      $this->getStocks();
+    }
 
-  $pCostBasis = 0;
+    $pCostBasis = 0;
 
-  foreach ($stocks as $s) {
-	if(!isset($s->stats)) {
-		$s->init();
-	}
-	
-	$pCostBasis += ($s->cost_basis)*($s->shares);
+    foreach ($stocks as $s) {
+	    if(!isset($s->stats)) {
+		    $s->init();
+      }
+      $pCostBasis += ($s->cost_basis)*($s->shares);
+    }
+
+    $ROI = $this->gains/$pCostBasis;
+
+    $this->ROI = $ROI;
+    return $ROI;
   }
 
-  $ROI = $this->gains/$pCostBasis;
-
-  $this->ROI = $ROI;
-  return $ROI;
+  public function shannonRatchet($symbol, $cash, $cost) {
+    /* 
+     * Runs the shannon_ratchet.pl trading strategy and parses the result
+     *
+     * Returns a numbered array of just the values from the result
+     */
+    exec("/home/cel294/public_html/portfolio/shannon_ratchet.pl $symbol $cash $cost", $output);
+    $data = array();
+    foreach( $output as $value ) {
+      preg_match('/\t+(.*)/',$value, $matches);
+      $data[] = $matches[1];
+    }
+    return $data;
   }
 
 }

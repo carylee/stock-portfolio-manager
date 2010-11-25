@@ -1,15 +1,11 @@
 <?php
+error_reporting(E_ALL);
 $symbol = $_GET['s'];
+$cmd = "perl /home/cel294/public_html/portfolio/time_series_symbol_project.pl $symbol 30 AR 16";
+// This seems to do something strange, like cache the results of time_series. It 
+// often uses old output instead of the output of the given command.
 
-$cmd = "perl time_series_symbol_project.pl " . $symbol . " 30 AR 16";
-
-//print "Command: " . $cmd;
-exec($cmd, $output);
-//$raw = `$cmd`;
-//$output = explode("\n", $raw);
-print "<pre>";
-print_r($output);
-print "</pre>";
+exec($cmd, $output) or die("It doesn't work");
 
 $data = array();
 foreach($output as $row) {
@@ -32,5 +28,4 @@ function gchart($data) {
 }
 
 print gchart($data);
-unset($output);
 ?>

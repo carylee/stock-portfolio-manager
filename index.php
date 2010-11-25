@@ -23,9 +23,6 @@ function pr($data){
   echo "</pre>";
 }
 
-/*$p = new Portfolio;
-print_r($p->getByUser('carylee@gmail.com'));*/
-
 $page = 'overview'; // the page the user is trying to access
 $action = ''; // any action the user is trying to perform
 
@@ -42,15 +39,10 @@ if(isset($_GET['p'])) {
 
 // Instantiate a user object
 $user = new User();
-if( !$user->loggedIn() && !$page=='portfolio-json' ) {
+if( !$user->loggedIn() && !$page=='portfolio-json' && !$page=='getcost' ) {
   $page = 'login'; // send them to the login page
 }
 $portfolios = $user->getPortfolios();
-///$stocks = $portfolios[1]->getStocks();
-//pr($stocks[0]);
-//pr($stocks[0]->getStats());
-
-//print_r($portfolios[0]->covCorMatrix( array('AAPL', "MSFT") ));
 
 // See what action the user is trying to perform and respond accordingly
 switch ($action) {
@@ -75,8 +67,8 @@ switch ($action) {
     break;
 
   case 'delete-portfolio':
-    if(isset($_GET['id']) && $user->ownsPortfolio($_GET['id'])) {
-      $user->portfolio($_GET['id'])->delete();
+    if(isset($_GET['id']) && $portfolio = $user->portfolio($_GET['id'])) {
+      $portfolio->delete();
     }
     break;
 
@@ -137,23 +129,33 @@ switch ($action) {
     initCashTransaction($_POST, 'WITHDRAW', $user);
     break;
 
+  case 'trade-search':
+    /*if(isset($_POST['symbol']) && isset($_POST['cash']) && isset($_POST['cost'])) {
+      tradeSearch($_POST['symbol'], $_POST['cash'], $_POST['cost'], $user);
+    }*/
+    break;
+
 }
 
 // See what page the user is trying to access and display it
 switch ($page ) {
   case 'stock':
+    checkLogin($user);
     stockPage($user);
     break;
 
   case 'overview':
+    checkLogin($user);
     overviewPage($user);
     break;
 
   case 'performance':
+    checkLogin($user);
     performancePage($user);
     break;
 
   case 'edit-portfolios':
+    checkLogin($user);
     edit_portfoliosPage($user);
     break;
 
@@ -169,10 +171,26 @@ switch ($page ) {
     break;
 
   case 'trade':
-    tradePage($user);
+    checkLogin($user);
+    $tradeData = array();
+    if(isset($_GET['a']) && isset($_GET['symbol']) && isset($_GET['cash']) && isset($_GET['cost'])) {
+      $tradeData = tradeSearch($_GET['symbol'], $_GET['cash'], $_GET['cost'], $user);
+    }
+    tradePage($user, $tradeData);
+    break;
+
+  case 'getcost':
+    if(isset($_GET['s'])) {
+      $symbol = $_GET['s'];
+      $stock = new Stock($symbol);
+      $stock->getQuote();
+      if($stock->close != 'N/A')
+        print $stock->close;
+    }
     break;
 
   case 'transactions':
+    checkLogin($user);
     transactionsPage($user);
     break;
 
@@ -212,7 +230,14 @@ function overviewPage($user) {
   $smarty->display('overview.tpl');
 }
 
+function checkLogin($user) {
+  if(!$user->email) {
+    header('Location: ' . BASEURL . "?p=login");
+  }
+}
+
 function performancePage($user) {
+  checkLogin($user);
   if(isset($_GET['id'])) {
     $id = $_GET['id'];
   } else {
@@ -230,8 +255,17 @@ function performancePage($user) {
   $smarty->display('performance.tpl');
 }
 
-function tradePage($user) {
+function tradePage($user, $tradeData) {
   $smarty = new Smarty;
+  if(isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $portfolio = $user->portfolio($id);
+  } else {
+    $portfolio = $user->portfolios[0];
+  }
+
+  $smarty->assign('tradedata', $tradeData);
+  $smarty->assign('portfolio', $portfolio);
   $smarty->assign('user', $user);
   $smarty->display('trade.tpl');
 }
@@ -273,6 +307,12 @@ function printPortfolioJSON() {
 
   header("Content-type: application/JSON");
   print $data;
+}
+
+function tradeSearch($symbol, $cash, $cost, $user) {
+  $portfolio = $user->portfolios[0];
+  $out = $portfolio->shannonRatchet($symbol, $cash, $cost);
+  return $out;
 }
  
 oci_close($ORACLE);
