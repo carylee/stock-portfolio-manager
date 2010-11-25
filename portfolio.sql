@@ -71,7 +71,8 @@ create TABLE portfolio_stocks (
 
 create TABLE averagesDaily (
   time number NOT NULL,
-  average number NOT NULL
+  average number NOT NULL,
+    constraint time_ave_unique UNIQUE(time, average)
 );
 
   
