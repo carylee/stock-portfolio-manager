@@ -203,7 +203,7 @@ class Stock {
     $result = mysql_query($query) or die (mysql_error());
     $asset_vals = mysql_fetch_array($result, MYSQL_NUM);
 
-    $query = "SELECT (average - AVG(average)) from averagesDaily WHERE 1=1";
+    $query = "SELECT (average - (SELECT AVG(average) from averagesDaily)) from averagesDaily WHERE 1=1";
     if(isset($to)) {
       $query .= " AND date >= ':to'";
     }
@@ -211,17 +211,17 @@ class Stock {
       $query .= " AND date <= ':from'";
     }
 
-
     $stid = oci_parse($this->db, $query);
+    error_log($query);
     if(isset($to)) {
-	oci_bind_by_name($stid, ':to', $to);
+      oci_bind_by_name($stid, ':to', $to);
     }
     if(isset($from)) {
     	oci_bind_by_name($stid, ':from', $from);
     }
 
     $r = oci_execute($stid);
-    $market_vals = oci_fetch_array($r, OCI_NUM+ OCI_RETURN_NULLS);
+    $market_vals = oci_fetch_array($stid, OCI_NUM+ OCI_RETURN_NULLS);
     oci_free_statement($stid);
 
     $cov = 0;
