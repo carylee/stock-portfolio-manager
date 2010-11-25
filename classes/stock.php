@@ -162,7 +162,7 @@ class Stock {
     $ret['max'] = $row[4];
     $ret['cov'] = $ret['std']/$ret['avg'];
     $optsbeta = array('field' => $field, 'to' => $to, 'from' => $from);
-    $ret['beta'] = $this->beta;    
+   # $ret['beta'] = $this->beta;    
     $this->stats = $ret;
     $this->cacheStats($ret, $field, $to, $from);
     return $ret;
