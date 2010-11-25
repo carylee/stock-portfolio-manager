@@ -13,4 +13,4 @@ stocks = open('sp500.txt', 'r')
 for line in stocks:
   stock = line.strip()
   query(stock)
-  time.sleep(7)
+  time.sleep(2)

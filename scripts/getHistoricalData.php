@@ -4,7 +4,7 @@ ini_set('log_errors', 1);
 ini_set('error_log', dirname(__FILE__) . '/error_log.txt'); 
 error_reporting(E_ALL);
 
-include('includes/db.php');
+require_once('../includes/db.php');
 
 if(isset($_GET['s'])) {
   $symbol = $_GET['s'];
@@ -13,7 +13,9 @@ if(isset($_GET['s'])) {
 }
 
 function getHistoricalData($symbol) {
-  $url = "http://www.google.com/finance/historical?q=$symbol&output=csv";
+
+  $url = "http://finance.google.com/finance/historical?q=$symbol&startdate=June+06%2C+2006&enddate=Nov+25%2C+2009&start=225&num=25&output=csv";
+  //$url = "http://www.google.com/finance/historical?q=$symbol&output=csv";
   $f = fopen($url,'r');
   $headrow = fgetcsv($f);
   $data = array();
@@ -43,7 +45,7 @@ function addRecord($symbol, $data) {
   oci_bind_by_name($stid, ':high', $data['High']);
   oci_bind_by_name($stid, ':low', $data['Low']);
   oci_bind_by_name($stid, ':volume', $data['Volume']);
-  $r = oci_execute($stid);
+  $r = @oci_execute($stid);
   oci_free_statement($stid);
   return $r;
 }
@@ -52,9 +54,7 @@ function addData($symbol, $data) {
   foreach( $data as $record) {
     $r = addRecord($symbol, $record);
     if($r) {
-      //print "Added data for $symbol on date " . $record['Date'] . "\n";
     } else {
-      //print "Failed to add data for record on date " . $record['Date'] . "\n";
     }
   }
 }
