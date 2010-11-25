@@ -4,14 +4,21 @@ require_once('includes/csv_explode.php');
 
 class Stock {
   public function __construct($symbol=FALSE) {
+    /*
+     * Stock objects can optionally be constructed by
+     * passing their symbol to the constructor:
+     * new Stock("SBUX");
+     */
     if($symbol) {
       $this->symbol = $symbol;
     }
+    // Make the db handle available
     global $ORACLE;
     $this->db = $ORACLE;
   }
 
   public function init() {
+    // Runs methods which initialize member properties for this object
     $this->getStats();
     $this->getQuote();
     $this->getPmv();
@@ -37,33 +44,8 @@ class Stock {
     }
   }
 
-  private function extractQuoteData($quote) {
-    // I don't think we're actually using this
-    $matches = array();
-    if(count($quote) < 8 ) {
-      return false;
-    }
-    preg_match('/[\d\/]+/', $quote[2], $matches['date']);
-    preg_match('/[\d.:]+/', $quote[3], $matches['time']); //time 
-    preg_match('/[\d.:]+/', $quote[4], $matches['high']); // high
-    preg_match('/[\d.:]+/', $quote[5], $matches['low']); // low
-    preg_match('/[\d.:]+/', $quote[6], $matches['close']); // close
-    preg_match('/[\d.:]+/', $quote[7], $matches['open']); // open
-    preg_match('/[\d.:]+/', $quote[8], $matches['volume']); // volume
-    $date = @$matches['date'][0];
-    $time = @$matches['time'][0];
-    $high = @$matches['high'][0];
-    $low = @$matches['low'][0];
-    $close = @$matches['close'][0];
-    $open = @$matches['open'][0];
-    if($date && $time && $high && $low ) {
-      return array('date'=>$date,'time'=>$time,'high'=>$high,'low'=>$low,'close'=>$close,'open'=>$open);
-    }
-    return false;
-  }
-
-
   public function getQuote() {
+    // Get a stock quote from Yahoo! Finance
     list($name, $this->date, $this->low, $this->high, $this->open, $this->close, $this->volume) = csv_explode(',', file_get_contents('http://finance.yahoo.com/d/quotes.csv?s='.$this->symbol.'&f=nd1ghopv'));
     if(!isset($this->name)) $this->name = str_replace('"', '', $name);
   }
@@ -100,6 +82,7 @@ class Stock {
       $ret['std'] = $row['STD_DEV'];
       $ret['min'] = $row['MIN'];
       $ret['max'] = $row['MAX'];
+      // 'cov' is depricated
       $ret['cov'] = $row['VOLATILITY'];
       $ret['vol'] = $row['VOLATILITY'];
       $ret['beta'] = $row['BETA'];
@@ -110,8 +93,9 @@ class Stock {
   }
 
   public function getStats($opts=array()) {
+    // Gets the statistics for this stock
+    // handles cache hits/misses
     $cachedStats = $this->getStatsFromCache($opts);
-    //print (string) $cachedStats;
     if($cachedStats) {
       $this->stats = $cachedStats;
     } else {
@@ -120,6 +104,8 @@ class Stock {
   }
 
   private function cacheStats($ret, $field, $to=NULL, $from=NULL) {
+    // Cache the stock statistics into the database stock_stats
+    // to save time on calculation
     $stid = oci_parse($this->db, 'INSERT INTO stocks_stats (symbol, count, average, std_dev, min, max, volatility, beta, field, from_date, to_date)
                                   VALUES (:symbol, :count, :average, :std, :min, :max, :vol, :beta, :field, :fromdate, :todate)');
     oci_bind_by_name($stid, ':symbol', $this->symbol);
@@ -133,11 +119,12 @@ class Stock {
     oci_bind_by_name($stid, ':field', $field);
     oci_bind_by_name($stid, ':fromdate', $from);
     oci_bind_by_name($stid, ':todate', $to);
-    $r = @oci_execute($stid);
+    $r = @oci_execute($stid); // ignore error in the case of duplication
     oci_free_statement($stid);
   }
 
   private function calcStats($opts=array()) {
+    // Calculate the statistics for this stock
     $field = 'close';
     $symbol = mysql_real_escape_string($this->symbol);
     $to = NULL;
@@ -190,6 +177,7 @@ class Stock {
   }
 
   public function getBeta($opts=array()) {
+    // Gets the Beta coefficient for this stock
     $field = 'close';
     $to = NULL;
     $from = NULL;
@@ -249,13 +237,20 @@ class Stock {
   }
 
   public function newCostBasis($shares, $cost) {
-    //$total_shares = $this->shares + $shares;
-    //$new_percent = $shares/$total_shares;
-    //$old_percent = $this->shares / $total_shares;
+    // Returns what the newCostBasis for this stock would be
+    // if $shares more shares were purchased at $cost
     return ($this->shares * $this->cost_basis + $shares * $cost) / ($shares + $this->shares);
   }
 
   public function pastPerformance() {
+    // Returns the past performance of this stock.
+    // This is done naiively using the current number of shares and the daily close price
+    // over the past recent data in the database.
+    //
+    // This does NOT take into consideration changes in the share quantity, but
+    // only uses the number of current shares
+    //
+    // Returns a array of form $data[unixtime] = value
     $stid = oci_parse($this->db, 'SELECT time,close FROM portfolio_StocksDaily WHERE symbol=:symbol');
     oci_bind_by_name($stid, ':symbol', $this->symbol);
     $r = oci_execute($stid);
