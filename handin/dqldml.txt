@@ -1,0 +1,66 @@
+*****GENERAL APPLICATION FLOW DML/DQL*****
+
+Adding/Registering Users:
+INSERT INTO portfolio_users (name,email,password) VALUES(:name, :email, :password)
+
+Authenticate a User:
+SELECT count(*) FROM portfolio_users WHERE email=:email AND password=:password
+
+Fetch a User's Portfolios:
+SELECT * FROM portfolio_portfolios WHERE owner=:email order by name
+
+Create a New Portfolio:
+INSERT INTO portfolio_portfolios (id, owner, name, description, cash_balance, creation_date)
+      VALUES(portfolio_ids.nextval, :owner, :name, :description, :deposit, :today)
+
+Remove a Portfolio:
+DELETE FROM portfolio_portfolios WHERE id=:id
+
+Fetch a Particular Portfolio by ID key
+SELECT * FROM portfolio_portfolios WHERE id=:id
+
+Add a Stock Holding to a Portfolio (TRANSACTION):
+1. UPDATE portfolio_portfolios SET cash_balance=(cash_balance - :amount) WHERE id=:id')
+2. UPDATE portfolio_stocks SET shares=(shares + :shares), cost_basis=:cost_basis WHERE holder=:holder AND symbol=:symbol
+3. INSERT INTO portfolio_stocks (symbol, shares, cost_basis, holder) VALUES (:symbol, :shares, :cost_basis, :holder)
+4. Commit or Rollback on Error
+
+Sell a Stock Holding in a Portfolio (TRANSACTION):
+1. UPDATE portfolio_portfolios SET cash_balance=(cash_balance + :amount) WHERE id=:id
+2. If shares remain do a, else b:
+	a. UPDATE portfolio_stocks SET shares=(shares - :shares) WHERE holder=:id AND symbol=:symbol
+	b. DELETE FROM portfolio_stocks WHERE holder=:id AND symbol=:symbol
+3.  Commit or Rollback on Error
+
+Fetch a Portfolio's Stocks Held:
+SELECT * FROM portfolio_stocks WHERE holder=:id order by symbol
+
+Deposit Cash to a Portfolio:
+UPDATE portfolio_portfolios SET cash_balance=(cash_balance + :amount) WHERE id=:id
+
+Withdraw Cash from a Portfolio:
+UPDATE portfolio_portfolios SET cash_balance=(cash_balance - :amount) WHERE id=:id
+
+Get a Stock's Performance History:
+SELECT time,close FROM portfolio_StocksDaily WHERE symbol=:symbol
+
+*****STATS GENERATION DML/DQL*****
+
+Get a Stock's Sample Size, Average Value (of given field), StdDev (of given field), Min (of given field), Max (of given field) Coeff_of_Var(std/mean) For Date Range From-To:
+SELECT COUNT(:field), AVG(:field), STD(:field), MIN(:field), MAX(:field) FROM StocksDaily WHERE symbol=:symbol AND date >= :to  AND date <= :to
+
+Get a Stock's Beta Value (time ranges can be added in if desired):
+1. Fetch the array of (Return_asset - Expected_return_asset):
+SELECT ((:field - :cost_basis)/:cost_basis) - AVG(:field)) FROM StocksDaily WHERE symbol=:symbol
+2. Fetch the array of (Return_market - Expected_return_market):
+SELECT (average - AVG(average)) from averagesDaily
+3. Find Expectation of [(Return_asset - Expected_return_asset) * (Return_market - Expected_Return_market)] -- must be done outside of databases since Expectation is over product of data in two separate DB environments (MYSQL, ORACLE);
+
+Get a Portfolio's Correlation/Covariance Matrix:
+For outer loop of stocks on inner loop of stocks in portfolio -->
+1. Get averages/stddevs of Both Symbols
+SELECT COUNT(*), AVG(l.:field1), STD(l.:field2), AVG(r.:field2), STD(r.:field2) FROM StocksDaily l JOIN StocksDaily r ON l.date=r.date WHERE l.symbol=:sym1 and r.symbol=:sym2
+2. Get Expectation[(Stock1_field - Expectation[Stock1_field])*(Stock2_field - Expectation[Stock2_field]):
+SELECT AVG((l.:field1 - :meanf1)*(r.:field2 - :meanf2)) FROM StocksDaily l JOIN StocksDaily r ON l.date=r.date WHERE l.symbol=:sym1 and r.symbol=:sym2
+3. Divide each result by stddev1*stddev2 for correlation result.
+
