@@ -9,7 +9,7 @@ print "Hello?";
 
 global $ORACLE;
 
-$query = "SELECT date, AVG(close) FROM StocksDaily GROUP BY date";
+$query = "select date, avg(close) FROM StocksDaily WHERE (symbol='T' OR symbol='GE' OR symbol='AAPL' OR symbol='CSCO' OR symbol='K' OR symbol='MSFT' OR symbol='H' OR symbol='PG' OR symbol='COKE' OR symbol='F') GROUP BY date";
 
 //$result = mysql_query($query) or die(mysql_error());
 $result = mysql_query($query);
